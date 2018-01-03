@@ -10,7 +10,6 @@ import { PresentationsComponent } from './presentations/presentations.component'
 import { PresentationDetailComponent } from './presentation-detail/presentation-detail.component';
 import { MedicalReceiptConsultPageComponent } from 'app/pages/full-layout-page/receipts-consult-page/receipts-consult-page.component';
 import { FormsModule } from '@angular/forms';
-import { FillsComponent } from 'app/shared/fills/fills.component';
 import { MedicalReceiptCreatePageComponent } from 'app/pages/full-layout-page/receipts-create-page/receipts-create-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MedicalReceiptUpdatePageComponent } from 'app/pages/full-layout-page/receipts-update-page/receipts-update-page.component';
@@ -31,8 +30,7 @@ import { MedicalReceiptUpdatePageComponent } from 'app/pages/full-layout-page/re
         PresentationDetailComponent,
         MedicalReceiptConsultPageComponent,
         MedicalReceiptCreatePageComponent,
-        MedicalReceiptUpdatePageComponent,
-        FillsComponent
+        MedicalReceiptUpdatePageComponent
     ]
 })
 export class FullPagesModule { }
