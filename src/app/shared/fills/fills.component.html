@@ -1,0 +1,24 @@
+<div>
+  <p>
+    <label>Receipt Barcode (id): </label>
+    <input placeholder="Insert the receipt barcode" [(ngModel)]="receiptID">
+  </p>
+  <p>
+    <label>Prescription Barcod (id): </label>
+    <input placeholder="Insert the prescription barcode" [(ngModel)]="prescriptionID">
+  </p>
+  <p>
+    <a class="btn btn-raised btn-success" (click)="searchPrescription()">Search Prescription</a>
+  </p>
+</div>
+<div *ngIf="prescription">
+  <p>{{prescription.presentation.drug}} Presentation</p>
+  <p>
+    <label>New Fill: </label>
+    <input placeholder="Insert the quantity to fill" [(ngModel)]="newFill">
+  </p>
+  <p>
+    <a class="btn btn-raised btn-success" (click)="fillPrescription()">Fill</a>
+  </p>
+  <p>{{message}}</p>
+</div>

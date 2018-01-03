@@ -1,0 +1,44 @@
+<div *ngIf="presentation">
+  <h2>{{presentation.drug}} Presentation</h2>
+  <p>
+    Medicines: <span *ngFor="let med of presentation.medicines">{{med}} </span>
+  </p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Interval</th>
+        <th>Period</th>
+        <th>Quantity</th>
+        <th>Technique</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let pos of presentation.posologies">
+        <td>{{pos.interval}}</td>
+        <td>{{pos.period}}</td>
+        <td>{{pos.quantity}}</td>
+        <td>{{pos.technique}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Comments</h2>
+  <section *ngIf="user.roles.includes(physicianRole)" class="card">
+    <div class="card-header">
+      <h4 class="card-title">{{user.name}} - {{user.email}} - New Comment</h4>
+      <br/>
+      <input class="form-control from-control-xl" placeholder="Insert your comment" [(ngModel)]="newComment">
+      <br/>
+      <a class="btn btn-raised btn-success" (click)="submitComment()">Submit</a>
+    </div>
+  </section>
+  <section *ngFor="let comment of presentation.comments" class="card">
+    <div class="card-header">
+      <h4 class="card-title">{{comment.physician.name}} - {{comment.physician.email}}</h4>
+      <p>{{comment.comment}}</p>
+    </div>
+  </section>
+
+  <a class="btn btn-raised btn-primary" (click)="goBack()">go back</a>
+
+</div>

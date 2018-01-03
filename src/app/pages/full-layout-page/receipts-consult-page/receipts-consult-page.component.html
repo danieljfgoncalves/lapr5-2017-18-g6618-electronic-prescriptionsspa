@@ -1,0 +1,138 @@
+<div class="row">
+  <div class="col-12">
+    <div class="content-header mb-3">Medical Receipts</div>
+  </div>
+</div>
+<div class="row" *ngFor="let receipt of receipts" matchHeight ="card">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="font-weight-bold">
+            Patient: 
+          </span>
+          {{receipt.patient.name}}
+        </h3>
+        <h6>
+          <span class="font-weight-bold my-2">
+            Physician:
+          </span>
+          {{receipt.physician.name}}
+        </h6>
+        <h6 class="my-2">
+          <span class="font-weight-bold">
+            Date:
+          </span>
+          {{receipt.creationDate | date:'fullDate'}}
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="card-block">
+          <h4 class="font-weight-bold">Prescriptions</h4>
+          <div class="row" *ngFor="let prescription of receipt.prescriptions">
+            <div class="col-sm-12">
+              <div class="content-header" *ngIf="prescription.medicine">
+              <span class="font-weight-bold">
+                Medicine:
+              </span>
+              {{prescription.medicine | uppercase}}
+              <p class="content-sub-header" *ngIf="prescription.presentation.drug">
+                <span class="font-weight-bold">
+                  Drug:
+                </span>
+                {{prescription.presentation.drug}}
+              </p>
+              <p>
+                <span class="font-weight-bold">
+                  Expiration Date:
+                </span>
+                {{prescription.expirationDate | date:'fullDate'}}
+              </p>
+              <p>
+                <span class="font-weight-bold">
+                  Quantity:
+                </span>
+                <span class="badge-pill badge-dark">
+                   {{prescription.quantity}}
+                </span>
+              </p>
+            </div>
+            <div class="col-12">
+              <!-- Start Accordian -->
+              <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+                <ngb-panel title="Presentation">
+                  <ng-template ngbPanelContent>
+                    <div class="col-12" style="margin-bottom: 20px;">
+                      <ul class="list-group">
+                        <li class="list-group-item">
+                          <span class="font-weight-bold my-2">
+                          Form: 
+                          </span>
+                          {{prescription.presentation.form | uppercase}}
+                        </li>
+                        <li class="list-group-item">
+                          <span class="font-weight-bold my-2">
+                            Concentration: 
+                          </span>
+                          {{prescription.presentation.concentration}}
+                        </li>
+                        <li class="list-group-item">
+                          <span class="font-weight-bold my-2">
+                            Quantity: 
+                          </span>
+                          {{prescription.presentation.quantity}}
+                        </li>
+                      </ul>
+                    </div>
+                  </ng-template>
+                </ngb-panel>
+                <ngb-panel title="Prescribed Posology">
+                  <ng-template ngbPanelContent>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Quantity</th>
+                          <th>Technique</th>
+                          <th>Interval</th>
+                          <th>Period</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{{prescription.posology.quantity}}</td>
+                          <td>{{prescription.posology.technique}}</td>
+                          <td>{{prescription.posology.interval}}</td>
+                          <td>{{prescription.posology.period}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </ng-template>
+                </ngb-panel>
+                <ngb-panel title="Fills">
+                  <ng-template ngbPanelContent>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Quantity</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let fill of prescription.fills">
+                          <td>{{fill.quantity}}</td>
+                          <td>{{fill.date | date:'fullDate'}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </ng-template>
+                </ngb-panel>
+              </ngb-accordion>
+              <!-- End Accordian -->
+            </div>
+            <hr>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

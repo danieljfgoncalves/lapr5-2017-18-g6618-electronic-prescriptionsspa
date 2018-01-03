@@ -1,0 +1,22 @@
+<table class="table">
+  <thead>
+    <tr>
+        <th>Drug</th>
+        <th>Form</th>
+        <th>Concentration</th>
+        <th>Quantity</th>
+        <th>Medicines</th>
+        <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let presentation of presentations">
+        <td>{{presentation.drug}}</td>
+        <td>{{presentation.form}}</td>
+        <td>{{presentation.concentration}}</td>
+        <td>{{presentation.quantity}}</td>
+        <td><span *ngFor="let med of presentation.medicines">{{med}} </span></td>
+        <td><a class="btn btn-raised btn-info" routerLink="/main/presentations/{{presentation.id}}">Details</a></td>
+    </tr>
+  </tbody>
+</table>

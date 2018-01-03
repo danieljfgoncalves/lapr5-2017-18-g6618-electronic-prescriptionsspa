@@ -1,0 +1,164 @@
+<div class="row">
+  <div class="col-12">
+    <div class="content-header mb-3">Create Medical Receipt</div>
+  </div>
+</div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title" id="horz-layout-basic">Receipt Info</h4>
+        </div>
+        <div class="card-body">
+          <div class="px-3">
+             
+            <!-- START FORM -->
+            <form class="form form-horizontal" [formGroup]="receiptForm" (ngSubmit)="onSubmit()" novalidate>
+              <div class="form-body">
+                  
+                <h4 class="form-section"><i class="ft-user"></i> Receipt Info</h4>
+                  
+                <div class="form-group row">
+                  <label class="col-md-3 label-control" for="receiptPatient">Patient: </label>
+                  <div class="col-md-9">
+                    <div class="position-relative has-icon-right">
+                      <select id="receiptPatient" name="patientInput" class="form-control" formControlName="patient">
+                        <option value="none" selected="" disabled="">Select Patient </option>
+                        <option *ngFor="let patient of patients" value="{{patient.id}}">{{patient.name}}</option>
+                      </select>
+                      <div class="form-control-position" style="margin-right:5px;">
+                        <i class="ft-user"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <h4 class="form-section"><i class="ft-file-text"></i> Prescriptions</h4>
+                
+                <div class="form-actions" style="border-top:none;">
+                  <button type="button" class="btn btn-raised btn-primary" (click)="addPrescription()" style="margin-left: 1rem;">
+                    <i class="fa fa-plus"></i> Add Prescription
+                  </button>
+                </div>
+                <div formArrayName="prescriptions" *ngFor="let prescription of receiptForm.controls['prescriptions'].controls; let i = index">
+                  <div class="card" formGroupName="{{i}}" style="padding: 20px;border:1px solid #ccc!important;padding-top: 5px;padding-right: 20px;padding-bottom: 10px;padding-left: 20px;">
+                    <div class="card-header">
+                      <h6 class="form-section">
+                        <i class="fa fa-hashtag"></i>{{i+1}}</h6>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-group row">
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-md-3 label-control" for="prescriptionExpDate">Expiration: </label>
+                            <div class="col-md-9">
+                              <div class="position-relative has-icon-left">
+                                <input type="date" id="prescriptionExpDate" class="form-control" formControlName="expiration" required valueAsDate>
+                                <div class="form-control-position">
+                                  <i class="fa fa-calendar-o"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-md-3 label-control" for="prescriptionQty">Quantity: </label>
+                            <div class="col-md-9">
+                              <div class="position-relative has-icon-left">
+                                <input type="number" id="prescriptionQty" class="form-control" formControlName="quantity" required>
+                                <div class="form-control-position">
+                                  <i class="fa fa-balance-scale"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-md-3 label-control" for="prescriptionDrug">Drug: </label>
+                            <div class="col-md-9">
+                              <div class="position-relative has-icon-right">
+                                <select id="prescriptionDrug" name="{{i}}" (change)="change($event)" class="form-control" formControlName="drug">
+                                  <option value="none" selected="" disabled="">Select Drug </option>
+                                  <option *ngFor="let drug of drugs" value="{{drug.name}}">{{drug.name}}</option>
+                                </select>
+                                <div class="form-control-position" style="margin-right:5px;">
+                                  <i class="fa fa-adjust"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-md-3 label-control" for="prescriptionMedicine">Medicine: </label>
+                            <div class="col-md-9">
+                              <div class="position-relative has-icon-right">
+                                <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine">
+                                  <option value="none" selected="" disabled="">Select Medicine </option>
+                                  <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
+                                </select>
+                                <div class="form-control-position" style="margin-right:5px;">
+                                  <i class="fa fa-medkit"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-md-3 label-control" for="prescriptionPresentation">Presentation: </label>
+                            <div class="col-md-9">
+                              <div class="position-relative has-icon-right">
+                                <select id="prescriptionPresentation" name="{{i}}" class="form-control" formControlName="presentation">
+                                  <option value="none" selected="" disabled="">Select Presentation </option>
+                                  <option *ngFor="let presentation of presentations" value="{{presentation.id}}">{{presentation.form}} | {{presentation.concentration}}</option>
+                                </select>
+                                <div class="form-control-position" style="margin-right:5px;">
+                                  <i class="fa fa-id-card"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-md-3 label-control" for="prescriptionPosology">Posology: </label>
+                            <div class="col-md-9">
+                              <div class="position-relative has-icon-right">
+                                <select id="posology" name="{{i}}" class="form-control" formControlName="posology">
+                                  <option value="none" selected="" disabled="">Select Posology </option>
+                                  <option *ngFor="let posology of posologies" value="{{posology.id}}">{{posology.quantity}} | {{posology.period}}</option>
+                                </select>
+                                <div class="form-control-position" style="margin-right:5px;">
+                                  <i class="fa fa-spoon"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- ADD MORE INPUTS HERE -->
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <!-- [disabled]="!receiptForm.valid" -->
+<button type="button" class="btn btn-raised btn-primary" id="basic-alert" (click)="onSubmit()" [disabled]="!receiptForm.valid"
+  style="margin-left: 1rem;">
+
+                  <i class="fa fa-check-square-o"></i> Create
+                </button>
+              </div>
+            </form>
+          <!-- END FORM -->
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
