@@ -25,9 +25,21 @@ export class PresentationService {
     private userService: UserService
   ) { }
 
+  getHeaders() {
+
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.authService.getMedicinesToken()
+    });
+    let httpOptions = {
+      headers: headers
+    };
+    return httpOptions;
+  }
+
   getPresentations(): Observable<Presentation[]> {
-    const url = environment.medicines_backend.url + '/api/presentations';
-    return this.http.get<Presentation[]>(url).map(res => {
+    const url = environment.medicines_backend.url + '/api/presentations/detailed';
+    return this.http.get<Presentation[]>(url, this.getHeaders()).map(res => {
       let presentations: Presentation[] = new Array();
 
       let presentationsJSON = JSON.parse(JSON.stringify(res));
@@ -39,9 +51,9 @@ export class PresentationService {
     });
   }
 
-  getPresentation(id: number): Observable<Presentation> {
-    const url = environment.medicines_backend.url + '/api/presentations/' + `${id}`;
-    return this.http.get(url)
+  getPresentation(id: String): Observable<Presentation> {
+    const url = environment.medicines_backend.url + '/api/presentations/' + id + '/detailed';
+    return this.http.get(url, this.getHeaders())
     .map((res: Response) => {
       let presentationJSON = JSON.parse(JSON.stringify(res));
       return this.mapPresentation(presentationJSON);
@@ -56,10 +68,10 @@ export class PresentationService {
     }
 
     let posologies: Posology[] = new Array();
-    for(let i=0; i< presentationJSON.medicines.length; i++) {
+    for(let i=0; i< presentationJSON.posologies.length; i++) {
       let posology: Posology = new Posology(
-        presentationJSON.posologies[i].posologyId,
-        presentationJSON.posologies[i].quantity,
+        presentationJSON.posologies[i].id,
+        presentationJSON.posologies[i].dosage,
         presentationJSON.posologies[i].technique,
         presentationJSON.posologies[i].interval,
         presentationJSON.posologies[i].period
@@ -68,61 +80,19 @@ export class PresentationService {
     }
     
     return new Presentation(
-      presentationJSON.presentationId, presentationJSON.drug.name, medicines, posologies, 
-      presentationJSON.form, presentationJSON.concentration, presentationJSON.quantity, null);
+      presentationJSON.id, presentationJSON.drug.name, medicines, posologies, 
+      presentationJSON.form, presentationJSON.concentration, presentationJSON.packageQuantity, presentationJSON.comments);
   }
 
-  getComments(presentationID: number): Observable<Comment[]> {
-    let url = environment.receipts_frontend.url + '/api/comments/presentation/' + `${presentationID}`;
-    let httpOptions = {
-      headers: new HttpHeaders({ 
-        'Content-Type': 'application/json',
-        'x-access-token': this.authService.getToken()
-      })
-    };
-
-    return this.http.get(url, httpOptions).map((res: Response) => {
-      let comments: Comment[] = new Array();
-
-      let commentsJSON = JSON.parse(JSON.stringify(res));
-      for(let i = 0; i < commentsJSON.length; i++) {
-        
-        let roles : Role[] = new Array();
-        for(let j = 0; j < commentsJSON[i].physician.roles.length; j++) {
-          roles[j] = commentsJSON[i].physician.roles[j];
-        }
-        let physician: User = new User(
-          commentsJSON[i].physician.userID,
-          commentsJSON[i].physician.name,
-          commentsJSON[i].physician.email,
-          commentsJSON[i].physician.mobile,
-          roles
-        );
-
-        comments[i] = new Comment(
-          commentsJSON[i].comment,
-          commentsJSON[i].physician
-        );
-      }
-
-      return comments;
-    });
-  }
-
+  // FIXME: Review POST Comment
   postComment(comment: string, presentationID: number): Observable<Comment> {
-    let url = environment.receipts_frontend.url + '/api/comments';
-    let httpOptions = {
-      headers: new HttpHeaders({ 
-        'Content-Type': 'application/json',
-        'x-access-token': this.authService.getToken()
-      })
-    };
+    let url = environment.medicines_backend.url + '/api/comments';
 
     let body = {
       "comment":comment,
       "presentationID":presentationID
     }
-    return this.http.post(url, body, httpOptions).map((res: Response) => {
+    return this.http.post(url, body, this.getHeaders()).map((res: Response) => {
       let resJSON = JSON.parse(JSON.stringify(res));
       return new Comment(
         resJSON.comment.comment.comment,

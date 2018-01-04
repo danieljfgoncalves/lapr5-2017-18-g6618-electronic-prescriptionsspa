@@ -34,14 +34,11 @@ export class PresentationDetailComponent implements OnInit {
   }
 
   getPresentation() {
-    const id = +this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
 
-    Observable.forkJoin(
-      this.presentationService.getPresentation(id),
-      this.presentationService.getComments(id)
-    ).subscribe(data => {
-      this.presentation = data[0];
-      this.presentation.comments = data[1];
+    this.presentationService.getPresentation(id).subscribe(presentation => {
+      // FIXME: Review presentation-detail.component.html to match comment attributes
+      this.presentation = presentation;
     });
   }
 
