@@ -15,8 +15,6 @@ import { ContentLayoutComponent } from 'app/layouts/content/content-layout.compo
 // Services
 import { AuthService } from './shared/auth/auth.service';
 import { AuthGuard } from './shared/auth/auth-guard.service';
-import { PhyscianAuthGuard } from './shared/auth/physician-auth-guard.service';
-import { PatientAuthGuard } from './shared/auth/patient-auth-guard.service';
 import { PresentationService } from './presentation.service';
 import { MedicalReceiptService } from './shared/medical-receipts/medical-receipt.service'
 import { UserService } from 'app/shared/user.service';
@@ -45,8 +43,6 @@ import { PrescriptionService } from 'app/shared/prescription.service';
         AuthService,
         AuthGuard,
         CheckRoleGuard,
-        PatientAuthGuard,
-        PhyscianAuthGuard,
         PresentationService,
         MedicalReceiptService,
         UserService,

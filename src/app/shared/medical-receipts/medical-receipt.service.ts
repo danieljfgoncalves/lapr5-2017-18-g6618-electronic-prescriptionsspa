@@ -27,8 +27,12 @@ export class MedicalReceiptService {
     private authService: AuthService) {}
   
   getHeaders() {
+
     let headers = new HttpHeaders({
-      'x-access-token': this.authService.getToken()
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.authService.getToken(),
+      'client_id': environment.receipts_frontend.client_id,
+      'client_secret': environment.receipts_frontend.client_secret,
     });
     let httpOptions = {
       headers: headers
