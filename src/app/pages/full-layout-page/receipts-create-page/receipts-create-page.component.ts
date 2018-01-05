@@ -154,6 +154,11 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
     )
   }
 
+  removePrescription(i: number) {
+    const control = <FormArray>this.receiptForm.controls['prescriptions'];
+    control.removeAt(i);
+  }
+
   // change(event) {
   //   let drugId = event.currentTarget.value;
   //   let formArrayID = event.currentTarget.name;
