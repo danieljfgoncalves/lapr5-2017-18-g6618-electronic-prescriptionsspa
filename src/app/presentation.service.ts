@@ -43,7 +43,7 @@ export class PresentationService {
       let presentations: Presentation[] = new Array();
 
       let presentationsJSON = JSON.parse(JSON.stringify(res));
-      for(var i = 0; i < presentationsJSON.length; i++) {
+      for (var i = 0; i < presentationsJSON.length; i++) {
         presentations[i] = this.mapPresentation(presentationsJSON[i]);
       }
 
@@ -54,21 +54,21 @@ export class PresentationService {
   getPresentation(id: String): Observable<Presentation> {
     const url = environment.medicines_backend.url + '/api/presentations/' + id + '/detailed';
     return this.http.get(url, this.getHeaders())
-    .map((res: Response) => {
-      let presentationJSON = JSON.parse(JSON.stringify(res));
-      return this.mapPresentation(presentationJSON);
-    });
+      .map((res: Response) => {
+        let presentationJSON = JSON.parse(JSON.stringify(res));
+        return this.mapPresentation(presentationJSON);
+      });
   }
 
   mapPresentation(presentationJSON): Presentation {
 
     let medicines: string[] = new Array();
-    for(let i=0; i< presentationJSON.medicines.length; i++) {
+    for (let i = 0; i < presentationJSON.medicines.length; i++) {
       medicines[i] = presentationJSON.medicines[i].name;
     }
 
     let posologies: Posology[] = new Array();
-    for(let i=0; i< presentationJSON.posologies.length; i++) {
+    for (let i = 0; i < presentationJSON.posologies.length; i++) {
       let posology: Posology = new Posology(
         presentationJSON.posologies[i].id,
         presentationJSON.posologies[i].dosage,
@@ -78,25 +78,28 @@ export class PresentationService {
       );
       posologies[i] = posology;
     }
-    
+
     return new Presentation(
-      presentationJSON.id, presentationJSON.drug.name, medicines, posologies, 
+      presentationJSON.id, presentationJSON.drug.name, medicines, posologies,
       presentationJSON.form, presentationJSON.concentration, presentationJSON.packageQuantity, presentationJSON.comments);
   }
 
   // FIXME: Review POST Comment
-  postComment(comment: string, presentationID: number): Observable<Comment> {
+  postComment(physician: string, comment: string, presentationID: number): Observable<Comment> {
     let url = environment.medicines_backend.url + '/api/comments';
 
     let body = {
-      "comment":comment,
-      "presentationID":presentationID
+      "physician": physician,
+      "text": comment,
+      "presentation": presentationID
     }
+
     return this.http.post(url, body, this.getHeaders()).map((res: Response) => {
       let resJSON = JSON.parse(JSON.stringify(res));
+      console.log(resJSON)
       return new Comment(
-        resJSON.comment.comment.comment,
-        new User(resJSON.comment.comment.physician, null, null, null, null)
+        resJSON.text,
+        new User(resJSON.physician, null, null, null, null)
       );
     });
   }

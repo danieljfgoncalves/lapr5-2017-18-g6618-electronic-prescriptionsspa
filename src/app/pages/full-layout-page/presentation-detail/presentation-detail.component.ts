@@ -37,7 +37,6 @@ export class PresentationDetailComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
 
     this.presentationService.getPresentation(id).subscribe(presentation => {
-      // FIXME: Review presentation-detail.component.html to match comment attributes
       this.presentation = presentation;
     });
   }
@@ -56,7 +55,7 @@ export class PresentationDetailComponent implements OnInit {
       return;
     }
     
-    this.presentationService.postComment(this.newComment, this.presentation.id)
+    this.presentationService.postComment(this.user.id, this.newComment, this.presentation.id)
     .subscribe(res => window.location.reload(), err => console.log(err));
   }
 
