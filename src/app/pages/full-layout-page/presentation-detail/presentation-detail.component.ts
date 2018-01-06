@@ -34,14 +34,10 @@ export class PresentationDetailComponent implements OnInit {
   }
 
   getPresentation() {
-    const id = +this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
 
-    Observable.forkJoin(
-      this.presentationService.getPresentation(id),
-      this.presentationService.getComments(id)
-    ).subscribe(data => {
-      this.presentation = data[0];
-      this.presentation.comments = data[1];
+    this.presentationService.getPresentation(id).subscribe(presentation => {
+      this.presentation = presentation;
     });
   }
 
@@ -59,7 +55,7 @@ export class PresentationDetailComponent implements OnInit {
       return;
     }
     
-    this.presentationService.postComment(this.newComment, this.presentation.id)
+    this.presentationService.postComment(this.user.id, this.newComment, this.presentation.id)
     .subscribe(res => window.location.reload(), err => console.log(err));
   }
 

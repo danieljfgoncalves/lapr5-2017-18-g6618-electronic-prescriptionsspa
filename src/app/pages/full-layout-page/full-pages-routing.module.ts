@@ -7,8 +7,6 @@ import { ChangeLogComponent } from 'app/changelog/changelog.component';
 import { PresentationDetailComponent } from 'app/pages/full-layout-page/presentation-detail/presentation-detail.component';
 import { MedicalReceiptConsultPageComponent } from 'app/pages/full-layout-page/receipts-consult-page/receipts-consult-page.component';
 import { AuthGuard } from 'app/shared/auth/auth-guard.service';
-import { PatientAuthGuard } from 'app/shared/auth/patient-auth-guard.service';
-import { PhyscianAuthGuard } from 'app/shared/auth/physician-auth-guard.service';
 import { Role } from 'app/model/role';
 import { CheckRoleGuard } from 'app/shared/auth/check-role-guard.service';
 import { MedicalReceiptCreatePageComponent } from 'app/pages/full-layout-page/receipts-create-page/receipts-create-page.component';

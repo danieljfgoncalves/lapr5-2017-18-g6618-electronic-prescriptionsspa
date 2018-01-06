@@ -42,9 +42,10 @@
                 </div>
                 <div formArrayName="prescriptions" *ngFor="let prescription of receiptForm.controls['prescriptions'].controls; let i = index">
                   <div class="card" formGroupName="{{i}}" style="padding: 20px;border:1px solid #ccc!important;padding-top: 5px;padding-right: 20px;padding-bottom: 10px;padding-left: 20px;">
-                    <div class="card-header">
+                    <div class="card-header"> 
                       <h6 class="form-section">
-                        <i class="fa fa-hashtag"></i>{{i+1}}</h6>
+                        <i class="fa fa-hashtag"></i>{{i+1}}
+                        <i class="fa fa-times pull-right" *ngIf="receiptForm.controls.prescriptions.controls.length > 1" (click)="removePrescription(i)"></i></h6>
                     </div>
                     <div class="card-body">
                       <div class="form-group row">
