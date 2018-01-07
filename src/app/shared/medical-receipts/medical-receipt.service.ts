@@ -40,6 +40,18 @@ export class MedicalReceiptService {
     return httpOptions;
   }
 
+  getHeadersMed() {
+
+  let headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + this.authService.getMedicinesToken()
+  });
+  let httpOptions = {
+    headers: headers
+  };
+  return httpOptions;
+}
+
   mapReceipt(json): MedicalReceipt {
 
     let prescriptions: Prescription[] = new Array();
@@ -83,7 +95,7 @@ export class MedicalReceiptService {
 
     let patient: User = {
       id: json.patient.userID,
-      name: json.patient.name,
+      name: json.patient.username,
       email: json.patient.email,
       mobile: json.patient.mobile,
       roles: json.patient.roles
@@ -91,7 +103,7 @@ export class MedicalReceiptService {
 
     let physician: User = {
       id: json.physician.userID,
-      name: json.physician.name,
+      name: json.physician.username,
       email: json.physician.email,
       mobile: json.physician.mobile,
       roles: json.physician.roles
@@ -127,7 +139,7 @@ export class MedicalReceiptService {
 
     const url = environment.medicines_backend.url + '/api/Drugs'
 
-    return this.http.get<Drug[]>(url).map(res => {
+    return this.http.get<Drug[]>(url, this.getHeadersMed()).map(res => {
         // Parse res to JSON
         let json = JSON.parse(JSON.stringify(res));
 
@@ -148,7 +160,7 @@ export class MedicalReceiptService {
 
     const url = environment.medicines_backend.url + '/api/Medicines'
 
-    return this.http.get<Medicine[]>(url).map(res => {
+    return this.http.get<Medicine[]>(url, this.getHeadersMed()).map(res => {
       // Parse res to JSON
       let json = JSON.parse(JSON.stringify(res));
 
@@ -169,7 +181,7 @@ export class MedicalReceiptService {
 
     const url = environment.medicines_backend.url + '/api/Posologies'
 
-    return this.http.get<Posology[]>(url).map(res => {
+    return this.http.get<Posology[]>(url, this.getHeadersMed()).map(res => {
       // Parse res to JSON
       let json = JSON.parse(JSON.stringify(res));
 
