@@ -1,110 +1,171 @@
-import { Router } from '@angular/router';
-import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import {
+  Router
+} from '@angular/router';
+import {
+  Injectable
+} from '@angular/core';
+import {
+  environment
+} from '../../../environments/environment';
 
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { Observable } from 'rxjs/Observable';
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpErrorResponse
+} from '@angular/common/http';
+import {
+  Subject
+} from 'rxjs';
 import * as jwt_decode from 'jwt-decode';
-import { tokenNotExpired } from 'angular2-jwt';
-import { User } from '../../model/user';
-import { Role } from '../../model/role';
+import {
+  tokenNotExpired
+} from 'angular2-jwt';
+import {
+  User
+} from '../../model/user';
+import {
+  Role
+} from '../../model/role';
+import { Observable } from 'rxjs/Rx';
 
 // inner class
-class Token { token: string };
+class Token {
+  token: string
+};
+class MedToken {
+  access_token: string
+};
 
 @Injectable()
 export class AuthService {
 
   private urlAuth: string = environment.receipts_frontend.url + '/api/authenticate';
-  private urlRegister: string = environment.receipts_frontend.url + '/api/register';
+  private urlRegister: string = environment.receipts_frontend.url + '/api/signup';
 
   private token: Token;
-  public auth: Subject<User> = new Subject<User>();
+  public auth: Subject < User > = new Subject < User > ();
   private userInfo: User;
 
   constructor(private http: HttpClient) {
-    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
     this.token = JSON.parse(JSON.stringify(localStorage.getItem('token')));
-    console.log("[constructor]userinfo: " 
-    + ((this.userInfo) ? this.userInfo.roles[0] + this.userInfo.id : "null"));
   }
 
-  signupUser(name: string, password: string, email: string ) {
+  signupUser(name: string, password: string, email: string) {
     //your code for signing up the new user
 
-    var body = { "name": name, "password": password, "email": email, "roles": ["patient"] };
+    var body = {
+      "name": name,
+      "password": password,
+      "email": email
+    };
 
-    return new Observable<boolean>(observer => {
-      this.http.post<boolean>(this.urlRegister, body)
+    return new Observable < boolean > (observer => {
+      this.http.post < boolean > (this.urlRegister, body)
         .subscribe(data => {
-          console.log(data);
-          observer.next(true);
-        },
-        (err: HttpErrorResponse) => {
-          if (err.error instanceof Error) {
-            console.log("Client-side error occured.");
-          } else {
-            console.log("Server-side error occured.");
-          } console.log(err);
-          observer.next(false);
-        });
+            console.log(data);
+            observer.next(true);
+          },
+          (err: HttpErrorResponse) => {
+            if (err.error instanceof Error) {
+              console.log("Client-side error occured.");
+            } else {
+              console.log("Server-side error occured.");
+            }
+            console.log(err);
+            observer.next(false);
+          });
     });
   }
 
-  signinUser(name: string, password: string): Observable<boolean> {
+  signinUser(name: string, password: string): Observable < boolean > {
     //your code for checking credentials and getting tokens for for signing in user
+    var options = {
+      headers: { 
+        'content-type'  : 'application/json',
+        'client_id'     : environment.receipts_frontend.client_id,
+        'client_secret' : environment.receipts_frontend.client_secret,
+      }
+    };
 
-    return new Observable<boolean>(observer => {
-      this.http.post<Token>(this.urlAuth, { name: name, password: password })
+    return new Observable < boolean > (observer => {
+      this.http.post < Token > (this.urlAuth, {
+          username: name,
+          password: password
+        }, options)
         .subscribe(data => {
-          if (data.token) {
-            const tokenDecoded = jwt_decode(data.token);
-            this.userInfo = {
-              id: tokenDecoded.userID,
-              name: tokenDecoded.name,
-              email: tokenDecoded.email,
-              mobile: tokenDecoded.mobile,
-              roles: tokenDecoded.roles
+            if (data.token) {
+              const tokenDecoded = jwt_decode(data.token);
+              this.userInfo = {
+                id: tokenDecoded.sub,
+                name: name,
+                email: tokenDecoded["https://lapr5.isep.pt/email"],
+                mobile: tokenDecoded["https://lapr5.isep.pt/roles"].mobile,
+                roles: tokenDecoded["https://lapr5.isep.pt/roles"]
+              }
+              localStorage.token = data.token;
+              localStorage.removeItem('anonymous');
+
+              const url = 'https://lapr5-3da.eu.auth0.com/oauth/token'
+              this.http.post<MedToken>(url,
+                {
+                  grant_type: 'client_credentials',
+                  client_id: environment.receipts_frontend.client_id,  //   'JlBREWOiSAE87o0MZjymMkH8z5wPX7QW',
+                  client_secret: environment.receipts_frontend.client_secret,  //   'xVeQAFK7NeZZXSJ7ZQeA2H6ouILGkGIyxBNKVPo-8W5tzDC-0o_vIwF96veW9V7b',
+                  audience: "https://medicines-backend-api/"
+                }).subscribe(medToken => {
+
+                  localStorage.medicinesToken = medToken.access_token;
+                  this.auth.next(this.userInfo);
+                  observer.next(true);
+                });
+              
+            } else {
+              this.auth.next(this.userInfo);
+              observer.next(false);
             }
-
-            localStorage.userInfo = JSON.stringify(this.userInfo);
-            localStorage.token = data.token;
-
-            localStorage.removeItem('anonymous');
-
-            this.auth.next(this.userInfo);
-            observer.next(true);
-          } else {
+          },
+          (err: HttpErrorResponse) => {
+            if (err.error instanceof Error) {
+              console.log("Client-side error occured.");
+            } else {
+              console.log("Server-side error occured.");
+            }
+            console.log(err);
             this.auth.next(this.userInfo);
             observer.next(false);
-          }
-        },
-        (err: HttpErrorResponse) => {
-          if (err.error instanceof Error) {
-            console.log("Client-side error occured.");
-          } else {
-            console.log("Server-side error occured.");
-          } console.log(err);
-          this.auth.next(this.userInfo);
-          observer.next(false);
-        });
+          });
     });
   }
 
-  logout() {   
+  logout() {
     this.token = null;
-    localStorage.removeItem('userInfo');
+    this.userInfo = null;
     localStorage.removeItem('token');
     localStorage.removeItem('anonymous');
     this.auth.next(this.userInfo);
   }
 
-  getToken() {    
+  getToken() {
     return localStorage.getItem('token');
   }
 
+  getMedicinesToken() {
+
+    return localStorage.getItem('medicinesToken');
+  }
+
   getUserInfo() {
+    if (!this.userInfo) {
+      const tokenDecoded = jwt_decode(this.getToken());
+      this.userInfo = {
+        id: tokenDecoded.sub,
+        name: tokenDecoded.name,
+        email: tokenDecoded['https://lapr5.isep.pt/email'],
+        mobile: tokenDecoded.mobile,
+        roles: tokenDecoded['https://lapr5.isep.pt/roles']
+      }
+    }
+
     return this.userInfo;
   }
 
@@ -113,7 +174,7 @@ export class AuthService {
     return tokenNotExpired();
   }
 
-  hasRole(role : Role) {
+  hasRole(role: Role) {
     // here you can check the user's role
     return this.userInfo.roles.includes(role);
   }
@@ -123,7 +184,7 @@ export class AuthService {
     if (!this.userInfo) return false;
 
     let bool = false;
-    for(let myRole of this.userInfo.roles) {
+    for (let myRole of this.userInfo.roles) {
       bool = bool || roles.includes(myRole);
     }
     return bool;
@@ -140,3 +201,4 @@ export class AuthService {
     return localStorage.getItem('anonymous') != undefined;
   }
 }
+

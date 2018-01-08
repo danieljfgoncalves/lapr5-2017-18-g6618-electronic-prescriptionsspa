@@ -13,7 +13,10 @@ export class UserService {
 
   getHeaders() {
     let headers = new HttpHeaders({
-      'x-access-token': this.authService.getToken()
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.authService.getToken(),
+      'client_id': environment.receipts_frontend.client_id,
+      'client_secret': environment.receipts_frontend.client_secret,
     });
     let httpOptions = {
       headers: headers
@@ -35,7 +38,7 @@ export class UserService {
       
       return new User(
         userJSON.userID,
-        userJSON.name,
+        userJSON.username,
         userJSON.email,
         userJSON.mobile,
         roles
@@ -55,16 +58,18 @@ export class UserService {
         let patients: User[] = new Array();
         for(let patientJSON of patientsJSON) {
 
-          let roles: Role[] = new Array();
-          for (var i = 0; i < patientJSON.roles.length; i++) {
-            roles[i] = patientJSON.roles[i];
-          }
+          // let roles: Role[] = new Array();
+          // for (var i = 0; i < patientJSON.roles.length; i++) {
+          //   roles[i] = patientJSON.roles[i];
+          // }
           let patient: User = new User(
             patientJSON.userID,
-            patientJSON.name,
+            patientJSON.username,
             patientJSON.email,
-            patientJSON.mobile,
-            roles
+            null,
+            null,
+            //patientJSON.mobile,
+            //roles
           );
           patients.push(patient);
         }
