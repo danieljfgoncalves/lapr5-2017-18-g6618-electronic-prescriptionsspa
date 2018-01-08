@@ -156,13 +156,13 @@ export class AuthService {
 
   getUserInfo() {
     if (!this.userInfo) {
-      const tokenDecoded = jwt_decode(this.getToken);
+      const tokenDecoded = jwt_decode(this.getToken());
       this.userInfo = {
-        id: tokenDecoded.userID,
+        id: tokenDecoded['https://lapr5.isep.pt/roles'],
         name: tokenDecoded.name,
-        email: tokenDecoded.email,
+        email: tokenDecoded['https://lapr5.isep.pt/email'],
         mobile: tokenDecoded.mobile,
-        roles: tokenDecoded.roles
+        roles: tokenDecoded['https://lapr5.isep.pt/roles']
       }
     }
 
