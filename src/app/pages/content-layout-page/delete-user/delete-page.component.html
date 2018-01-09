@@ -11,7 +11,7 @@
                                     <div class="card-img overlap">
                                         <img alt="Card image cap" src="assets/img/elements/13.png" width="350" class="mx-auto d-block">
                                     </div>
-                                    <h2 class="card-title font-large-1 text-center white mt-3">Registration</h2>
+                                    <h2 class="card-title font-large-1 text-center white mt-3">Delete Registration</h2>
                                 </div>
                             </div>
                             <div class="col-12 col-sm-12 col-md-6 d-flex align-items-center">
@@ -21,38 +21,23 @@
                                             <span class="input-group-addon">
                                                 <i class="icon-user"></i>
                                             </span>
-                                            <input type="text" class="form-control" name="fname" id="fname" placeholder="username" [(ngModel)]="model.username" #name="ngModel"
-                                                required>
+                                            <input _ngcontent-c15="" class="form-control" id="readname" readonly="readname" type="text" value={{user.name}}>
                                         </div>
                                         <div class="input-group mb-3">
                                             <span class="input-group-addon">
                                                 <i class="ft-mail"></i>
                                             </span>
-                                            <input type="email" class="form-control" name="inputEmail" id="inputEmail" placeholder="email" [(ngModel)]="model.email"
-                                                #name="ngModel" required email>
+                                            <input type="email" class="form-control" id="readname" readonly="readname" type="text" value={{user.email}}>
                                         </div>
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-addon">
-                                                <i class="ft-lock"></i>
-                                            </span>
-                                            <input type="password" class="form-control" name="inputPass" id="inputPass" placeholder="password" [(ngModel)]="model.password"
-                                                #name="ngModel" required>
-                                        </div>
-
                                         <div class="form-group col-sm-offset-1">
                                             <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
                                                 <input type="checkbox" class="custom-control-input" [(ngModel)]="checked" (click)="check()" id="check" unchecked>
                                                 <span class="custom-control-indicator"></span>
-                                                <span class="pl-2">I agree EULA and Privacy Policy</span>
-                                            </label>
-                                            <div _ngcontent-c10="" class="card-block text-center">
-                                                <button _ngcontent-c44="" class="badge badge-dark" (click)="eulaAlert()" type="button">Eula</button> 
-                                                <button _ngcontent-c44="" class="badge badge-dark" (click)="privacyPolicyAlert()" type="button">Privacy Policy</button>
-                                            </div>
+                                                <span class="pl-2">Confirm Delete user</span>
+                                            </label>                                            
                                         </div>
-
                                         <div class="form-group text-center">
-                                            <button type="button" class="btn btn-warning btn-raised" (click)="onSubmit()" [disabled]="!checked">Get Started</button>
+                                            <button type="button" class="btn btn-warning btn-raised" (click)="onSubmit()" [disabled]="!checked">Delete</button>
                                         </div>
                                     </form>
                                 </div>

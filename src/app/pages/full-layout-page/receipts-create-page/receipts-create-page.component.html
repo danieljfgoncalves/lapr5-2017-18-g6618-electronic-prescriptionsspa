@@ -80,7 +80,7 @@
                             <label class="col-md-3 label-control" for="prescriptionDrug">Drug: </label>
                             <div class="col-md-9">
                               <div class="position-relative has-icon-right">
-                                <select id="prescriptionDrug" name="{{i}}" (change)="change($event)" class="form-control" formControlName="drug">
+                                <select id="prescriptionDrug" name="{{i}}" (change)="drugDropDownCallback()" class="form-control" formControlName="drug" [(ngModel)]="selectedDrug">
                                   <option value="none" selected="" disabled="">Select Drug </option>
                                   <option *ngFor="let drug of drugs" value="{{drug.name}}">{{drug.name}}</option>
                                 </select>
@@ -96,7 +96,11 @@
                             <label class="col-md-3 label-control" for="prescriptionMedicine">Medicine: </label>
                             <div class="col-md-9">
                               <div class="position-relative has-icon-right">
-                                <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine">
+                                <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="isDrugSelected">
+                                  <option value="none" selected="" disabled="">Select Medicine </option>
+                                  <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
+                                </select>
+                                <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="!isDrugSelected" disabled>
                                   <option value="none" selected="" disabled="">Select Medicine </option>
                                   <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
                                 </select>
@@ -112,7 +116,11 @@
                             <label class="col-md-3 label-control" for="prescriptionPresentation">Presentation: </label>
                             <div class="col-md-9">
                               <div class="position-relative has-icon-right">
-                                <select id="prescriptionPresentation" name="{{i}}" class="form-control" formControlName="presentation">
+                                <select id="prescriptionPresentation" name="{{i}}" (change)="presentationDropDownCallback()" class="form-control" formControlName="presentation" [(ngModel)]="selectedPresentation" *ngIf="isDrugSelected">
+                                  <option value="none" selected="" disabled="">Select Presentation </option>
+                                  <option *ngFor="let presentation of presentations" value="{{presentation.id}}">{{presentation.form}} | {{presentation.concentration}}</option>
+                                </select>
+                                <select id="prescriptionPresentation" name="{{i}}" (change)="presentationDropDownCallback()" class="form-control" formControlName="presentation" [(ngModel)]="selectedPresentation" *ngIf="!isDrugSelected" disabled>
                                   <option value="none" selected="" disabled="">Select Presentation </option>
                                   <option *ngFor="let presentation of presentations" value="{{presentation.id}}">{{presentation.form}} | {{presentation.concentration}}</option>
                                 </select>
@@ -128,9 +136,13 @@
                             <label class="col-md-3 label-control" for="prescriptionPosology">Posology: </label>
                             <div class="col-md-9">
                               <div class="position-relative has-icon-right">
-                                <select id="posology" name="{{i}}" class="form-control" formControlName="posology">
+                                <select id="posology" name="{{i}}" class="form-control" formControlName="posology" *ngIf="isPresentationSelected">
                                   <option value="none" selected="" disabled="">Select Posology </option>
-                                  <option *ngFor="let posology of posologies" value="{{posology.id}}">{{posology.quantity}} | {{posology.period}}</option>
+                                  <option *ngFor="let posology of posologies" value="{{posology.id}}">{{posology.period}}</option>
+                                </select>
+                                <select id="posology" name="{{i}}" class="form-control" formControlName="posology" *ngIf="!isPresentationSelected" disabled>
+                                  <option value="none" selected="" disabled="">Select Posology </option>
+                                  <option *ngFor="let posology of posologies" value="{{posology.id}}"> {{posology.period}}</option>
                                 </select>
                                 <div class="form-control-position" style="margin-right:5px;">
                                   <i class="fa fa-spoon"></i>

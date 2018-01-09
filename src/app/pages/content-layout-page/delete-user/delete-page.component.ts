@@ -4,21 +4,22 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { AuthService } from 'app/shared/auth/auth.service';
 import { checkAndUpdateBinding } from '@angular/core/src/view/util';
 import { checkServerIdentity } from 'tls';
-import * as alertFunctions from '../../../shared/data/sweet-alerts';
+import { User } from 'app/model/user';
 
 @Component({
     selector: 'app-register-page',
-    templateUrl: './register-page.component.html',
-    styleUrls: ['./register-page.component.scss'],
+    templateUrl: './delete-page.component.html',
+    styleUrls: ['./delete-page.component.scss'],
 })
 
-export class RegisterPageComponent {
+export class DeletePageComponent {
 
     model: any = {};
     error = '';
     checked = false;
+    user: User;
 
-    @ViewChild('f') registerForm: NgForm;
+    @ViewChild('f') registerForm: NgForm;    
 
     constructor(
         private router: Router,
@@ -26,21 +27,13 @@ export class RegisterPageComponent {
         private authService: AuthService) { }
 
     ngOnInit() {
-        this.authService.logout();
-        this.route.params.subscribe(params => {
-            if (params['u'] !== undefined) {
-                this.error = 'Something went wrong!';
-            }
-        });
+        this.getUserInfo();
     }
 
-    eulaAlert() {
-        alertFunctions.eulaAlert();
-    }
-
-    privacyPolicyAlert() {
-        alertFunctions.privacyPolicyAlert();
-    }
+    getUserInfo() {
+        this.user = this.authService.getUserInfo();
+        console.log(this.user);
+      }
 
     check() {
         if (this.checked) {
@@ -54,7 +47,7 @@ export class RegisterPageComponent {
     onSubmit() {
 
         if (this.checked) {
-            this.authService.signupUser(this.model.username, this.model.password, this.model.email)
+            this.authService.deleteUser(this.user.id)
                 .subscribe(result => {
                     if (result === true) {
                         this.router.navigate(['login'], { relativeTo: this.route.parent });
@@ -63,8 +56,8 @@ export class RegisterPageComponent {
                         this.error = 'Invalid';
                     }
                 });
-
             this.registerForm.reset();
+            
         } else {
             // TODO: Alert view
             this.error = 'Invalid';

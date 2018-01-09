@@ -25,6 +25,7 @@
                             <p class="d-none">fullscreen</p>
                         </a>
                     </li>
+                    <!--
                     <li class="nav-item" ngbDropdown placement="bottom-right">
                         <a class="nav-link position-relative" id="dropdownBasic2" ngbDropdownToggle>
                             <i class="ft-bell font-medium-3 blue-grey darken-4"></i>
@@ -63,13 +64,23 @@
                             <a class="noti-footer primary text-center d-block border-top border-top-blue-grey border-top-lighten-4 text-bold-400 py-1">Read All Notifications</a>
                         </div>
                     </li>
-                    <li class="nav-item mr-2">
-                        <a class="nav-link btn btn-raised gradient-mint white" *ngIf="!userInfo" routerLink="/content-layout/login">
-                            <span><i class="ft-power mr-1" style="font-weight: 600;"></i>Login</span>
+                -->
+                    <li class="nav-item" ngbDropdown placement="bottom-right">
+                        <a class="nav-link position-relative" id="dropdownBasic3" ngbDropdownToggle>
+                            <i class="ft-user font-medium-3 blue-grey darken-4"></i>
+                            <p class="d-none">User Settings</p>
                         </a>
-                        <a class="nav-link btn btn-raised gradient-ibiza-sunset white" *ngIf="userInfo" routerLink="/content-layout/login">
-                            <span><i class="ft-power mr-1" style="font-weight: 600;"></i>Logout</span>
-                        </a>
+                        <div ngbDropdownMenu aria-labelledby="dropdownBasic3">
+                            <a class="dropdown-item py-1" routerLink="/content-layout/delete">
+                                <i class="ft-edit mr-2"></i>
+                                <span>Delete User</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="javascript:;" *ngIf="userInfo" routerLink="/content-layout/login">
+                                <i class="ft-power mr-2"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
                     </li>
                 </ul>
             </div>

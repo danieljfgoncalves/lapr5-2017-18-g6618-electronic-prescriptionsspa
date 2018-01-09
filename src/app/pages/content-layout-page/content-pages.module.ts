@@ -6,6 +6,7 @@ import { ContentPagesRoutingModule } from "./content-pages-routing.module";
 import { ContentLayoutPageComponent } from './example/content-layout-page.component';
 import { LoginPageComponent } from './login/login-page.component';
 import { RegisterPageComponent } from 'app/pages/content-layout-page/register/register-page.component';
+import { DeletePageComponent } from 'app/pages/content-layout-page/delete-user/delete-page.component';
 
 
 
@@ -18,7 +19,8 @@ import { RegisterPageComponent } from 'app/pages/content-layout-page/register/re
     declarations: [
         ContentLayoutPageComponent,
         LoginPageComponent,
-        RegisterPageComponent
+        RegisterPageComponent,
+        DeletePageComponent
     ]
 })
 export class ContentPagesModule { }

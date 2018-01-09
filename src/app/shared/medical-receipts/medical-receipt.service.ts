@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http'; 
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/Rx';
 import { MedicalReceipt } from '../../model/medical-receipt';
 import { AuthService } from '../auth/auth.service';
@@ -19,13 +19,13 @@ import { Medicine } from 'app/model/medicine';
 
 @Injectable()
 export class MedicalReceiptService {
-  
-  private baseUrl = environment.receipts_frontend.url; 
-  
+
+  private baseUrl = environment.receipts_frontend.url;
+
   constructor(
     private http: HttpClient,
-    private authService: AuthService) {}
-  
+    private authService: AuthService) { }
+
   getHeaders() {
 
     let headers = new HttpHeaders({
@@ -40,13 +40,25 @@ export class MedicalReceiptService {
     return httpOptions;
   }
 
+  getHeadersMed() {
+
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.authService.getMedicinesToken()
+    });
+    let httpOptions = {
+      headers: headers
+    };
+    return httpOptions;
+  }
+
   mapReceipt(json): MedicalReceipt {
 
     let prescriptions: Prescription[] = new Array();
-    for(let prescriptionJSON of json.prescriptions) {
+    for (let prescriptionJSON of json.prescriptions) {
       // fills
       let fills: Fill[] = new Array();
-      for(let fillJSON of prescriptionJSON.fills) {
+      for (let fillJSON of prescriptionJSON.fills) {
         let fill: Fill = new Fill(new Date(fillJSON.date), fillJSON.quantity);
         fills.push(fill);
       }
@@ -83,7 +95,7 @@ export class MedicalReceiptService {
 
     let patient: User = {
       id: json.patient.userID,
-      name: json.patient.name,
+      name: json.patient.username,
       email: json.patient.email,
       mobile: json.patient.mobile,
       roles: json.patient.roles
@@ -91,7 +103,7 @@ export class MedicalReceiptService {
 
     let physician: User = {
       id: json.physician.userID,
-      name: json.physician.name,
+      name: json.physician.username,
       email: json.physician.email,
       mobile: json.physician.mobile,
       roles: json.physician.roles
@@ -106,17 +118,17 @@ export class MedicalReceiptService {
     );
   }
 
-  getReceipts(): Observable < MedicalReceipt[] > {
+  getReceipts(): Observable<MedicalReceipt[]> {
 
     const url = this.baseUrl + '/api/medicalReceipts'
 
-    return this.http.get< MedicalReceipt[] >(url,
+    return this.http.get<MedicalReceipt[]>(url,
       this.getHeaders()).map(res => {
         // Parse res to JSON
         let json = JSON.parse(JSON.stringify(res));
 
         let receipts: MedicalReceipt[] = new Array();
-        for(let receipt of json) {
+        for (let receipt of json) {
           receipts.push(this.mapReceipt(receipt));
         }
         return receipts;
@@ -127,28 +139,28 @@ export class MedicalReceiptService {
 
     const url = environment.medicines_backend.url + '/api/Drugs'
 
-    return this.http.get<Drug[]>(url).map(res => {
-        // Parse res to JSON
-        let json = JSON.parse(JSON.stringify(res));
+    return this.http.get<Drug[]>(url, this.getHeadersMed()).map(res => {
+      // Parse res to JSON
+      let json = JSON.parse(JSON.stringify(res));
 
-        let drugs: Drug[] = new Array();
-        for (let drug of json) {
+      let drugs: Drug[] = new Array();
+      for (let drug of json) {
 
-          let newDrug: Drug = {
-            id: drug.drugId,
-            name: drug.name
-          }
-          drugs.push(newDrug);
+        let newDrug: Drug = {
+          id: drug.drugId,
+          name: drug.name
         }
-        return drugs;
-      });
+        drugs.push(newDrug);
+      }
+      return drugs;
+    });
   }
 
   getMedicines(): Observable<Medicine[]> {
 
     const url = environment.medicines_backend.url + '/api/Medicines'
 
-    return this.http.get<Medicine[]>(url).map(res => {
+    return this.http.get<Medicine[]>(url, this.getHeadersMed()).map(res => {
       // Parse res to JSON
       let json = JSON.parse(JSON.stringify(res));
 
@@ -165,11 +177,33 @@ export class MedicalReceiptService {
     });
   }
 
+  getMedicinesByDrug(drug): Observable<Medicine[]> {
+
+    const url = environment.medicines_backend.url + '/api/Medicines'
+
+    return this.http.get<Medicine[]>(url, this.getHeadersMed()).map(res => {
+      // Parse res to JSON
+      let json = JSON.parse(JSON.stringify(res));
+
+      let medicines: Medicine[] = new Array();
+      for (let medicine of json) {
+        if (medicine.drug.name == drug) {
+          let newMed: Medicine = {
+            id: medicine.medicineId,
+            name: medicine.name
+          }
+          medicines.push(newMed);
+        }
+      }
+      return medicines;
+    });
+  }
+
   getPosologies(): Observable<Posology[]> {
 
     const url = environment.medicines_backend.url + '/api/Posologies'
 
-    return this.http.get<Posology[]>(url).map(res => {
+    return this.http.get<Posology[]>(url, this.getHeadersMed()).map(res => {
       // Parse res to JSON
       let json = JSON.parse(JSON.stringify(res));
 
@@ -189,7 +223,33 @@ export class MedicalReceiptService {
     });
   }
 
-  postReceipt(body) : Observable<boolean> {
+  getPosologiesByPresentation(presentation): Observable<Posology[]> {
+
+    const url = environment.medicines_backend.url + '/api/Posologies'
+
+    return this.http.get<Posology[]>(url, this.getHeadersMed()).map(res => {
+      // Parse res to JSON
+      let json = JSON.parse(JSON.stringify(res));
+
+      let posologies: Posology[] = new Array();
+      for (let posology of json) {
+        if (posology.presentation.id === presentation) {
+
+          let newPosology: Posology = {
+            id: posology.id,
+            quantity: null,
+            technique: posology.technique,
+            interval: posology.interval,
+            period: posology.period
+          }
+          posologies.push(newPosology);
+        }
+      }
+      return posologies;
+    });
+  }
+
+  postReceipt(body): Observable<boolean> {
 
     const url = this.baseUrl + '/api/medicalReceipts'
 

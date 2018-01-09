@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { ContentLayoutPageComponent } from './example/content-layout-page.component'; // FIXME: Remove all content layout page
 import { LoginPageComponent } from './login/login-page.component';
 import { RegisterPageComponent } from 'app/pages/content-layout-page/register/register-page.component';
-
+import { DeletePageComponent } from 'app/pages/content-layout-page/delete-user/delete-page.component';
 
 const routes: Routes = [
   {
@@ -29,6 +29,13 @@ const routes: Routes = [
         component: RegisterPageComponent,
         data: {
           title: 'Register Page'
+        }
+      },
+      {
+        path: 'delete',
+        component: DeletePageComponent,
+        data: {
+          title: 'Delete Page'
         }
       },
       // { // FIXME:

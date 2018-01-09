@@ -133,8 +133,8 @@ export class ChangeLogComponent {
           fullDataArray.push(this.fillsDataMap.get("Filled") + this.fillsDataMap.get("Not filled"));
           fullDataArray.push(this.fillsDataMap.get("Filled"));
           fullDataArray.push(this.fillsDataMap.get("Not filled"));
-          var labelsArr = ["Total prescriptions","Filled","Not filled"];
-          this.createBarChart("Prescription information","Filled to not filled prescription ratio",fullDataArray, i,labelsArr);
+          var labelsArray = ["Total prescriptions","Filled","Not filled"];
+          this.createBarChart("Prescription information","Filled to not filled prescription ratio",fullDataArray, i,labelsArray);
           break;
       }
 
