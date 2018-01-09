@@ -97,7 +97,7 @@
                             <label class="col-md-3 label-control" for="prescriptionDrug">Drug: </label>
                             <div class="col-md-9">
                               <div class="position-relative has-icon-right">
-                                <select id="prescriptionDrug" name="{{i}}" (change)="change($event)" class="form-control" formControlName="drug">
+                                <select id="prescriptionDrug" name="{{i}}" (change)="change($event)" class="form-control" formControlName="drug" *ngIf="!receiptForm.controls.patient" disabled>
                                   <option value="none" selected="" disabled="">Select Drug </option>
                                   <option *ngFor="let drug of drugs" value="{{drug.name}}">{{drug.name}}</option>
                                 </select>

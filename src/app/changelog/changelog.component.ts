@@ -21,7 +21,7 @@ export class ChangeLogComponent {
   activeCharts = [];
   scenes = [];
   renderer = null;
-  graphNr = 20;
+  graphNr = 0;
   constructor() {
 
   }
