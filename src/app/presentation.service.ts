@@ -51,6 +51,22 @@ export class PresentationService {
     });
   }
 
+  getPresentationsByDrug(drug): Observable<Presentation[]> {
+    const url = environment.medicines_backend.url + '/api/presentations/detailed';
+    return this.http.get<Presentation[]>(url, this.getHeaders()).map(res => {
+      let presentations: Presentation[] = new Array();
+
+      let presentationsJSON = JSON.parse(JSON.stringify(res));
+      for (var i = 0; i < presentationsJSON.length; i++) {
+        if (presentationsJSON[i].drug.name == drug) {
+          presentations.push(this.mapPresentation(presentationsJSON[i])
+          )}
+      }
+
+      return presentations;
+    });
+  }
+
   getPresentation(id: String): Observable<Presentation> {
     const url = environment.medicines_backend.url + '/api/presentations/' + id + '/detailed';
     return this.http.get(url, this.getHeaders())
@@ -84,7 +100,6 @@ export class PresentationService {
       presentationJSON.form, presentationJSON.concentration, presentationJSON.packageQuantity, presentationJSON.comments);
   }
 
-  // FIXME: Review POST Comment
   postComment(physician: string, comment: string, presentationID: number): Observable<Comment> {
     let url = environment.medicines_backend.url + '/api/comments';
 

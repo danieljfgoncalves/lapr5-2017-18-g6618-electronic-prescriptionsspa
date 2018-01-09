@@ -56,16 +56,14 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
       this.receiptService.getDrugs(),
       this.usersService.getPatients(),
       this.receiptService.getMedicines(),
-      this.presentationsService.getPresentations(),
       this.receiptService.getPosologies(),
       this.receiptService.getReceipts()
     ).subscribe(data => {
       this.drugs = data[0];
       this.patients = data[1];
       this.medicines = data[2];
-      this.presentations = data[3];
-      this.posologies = data[4];
-      this.receipts = data[5];
+      this.posologies = data[3];
+      this.receipts = data[4];
     });
   }
 
@@ -73,6 +71,12 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
 
     let receiptId = (<FormControl>this.receiptForm.get('selectedReceipt')).value;
     this.receipt = this.findReceipt(receiptId).pop();
+
+    Observable.forkJoin(
+      this.presentationsService.getPresentations(),
+    ).subscribe(data => {
+      this.presentations = data[0];
+    });
   }
 
   findReceipt(id:String) {
