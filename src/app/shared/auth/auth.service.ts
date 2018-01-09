@@ -50,17 +50,23 @@ export class AuthService {
     this.token = JSON.parse(JSON.stringify(localStorage.getItem('token')));
   }
 
-  signupUser(name: string, password: string, email: string) {
+  signupUser(username: string, password: string, email: string) {
     //your code for signing up the new user
-
+    var options = {
+      headers: { 
+        'content-type'  : 'application/json',
+        'client_id'     : environment.receipts_frontend.client_id,
+        'client_secret' : environment.receipts_frontend.client_secret,
+      }
+    };
     var body = {
-      "name": name,
+      "username": username,
       "password": password,
       "email": email
     };
 
     return new Observable < boolean > (observer => {
-      this.http.post < boolean > (this.urlRegister, body)
+      this.http.post < boolean > (this.urlRegister, body, options)
         .subscribe(data => {
             console.log(data);
             observer.next(true);
