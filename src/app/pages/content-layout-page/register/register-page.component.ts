@@ -54,7 +54,7 @@ export class RegisterPageComponent {
     onSubmit() {
 
         if (this.checked) {
-            this.authService.signupUser(this.model.name, this.model.password, this.model.email)
+            this.authService.signupUser(this.model.username, this.model.password, this.model.email)
                 .subscribe(result => {
                     if (result === true) {
                         this.router.navigate(['login'], { relativeTo: this.route.parent });
