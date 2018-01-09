@@ -53,6 +53,10 @@ export class LoginPageComponent implements OnInit {
         this.router.navigate(['register'], { relativeTo: this.route.parent });
     }
 
+    onDelete() {
+        this.router.navigate(['delete'], { relativeTo: this.route.parent });
+    }
+
     onAnonymous() {
         this.authService.toggleAnonymous();
         this.router.navigate(['/main/dashboard'], { replaceUrl: true });
