@@ -76,8 +76,8 @@ THREE.PMREMGenerator.prototype = {
 	 * By using the previous convolved maps, a lower number of samples are generally sufficient(right now 32, which
 	 * gives okay results unless we see the reflection very carefully, or zoom in too much), however the math
 	 * goes wrong as the distribution function tries to sample a larger area than what it should be. So I simply scaled
-	 * the roughness by 0.9(totally empirical) to try to visually match the original result.
-	 * The condition "if(i <5)" is also an attemt to make the result match the original result.
+	 * the roughness by 0.9(totally empirical) to try to visually match the original medicinesMap.
+	 * The condition "if(i <5)" is also an attemt to make the medicinesMap match the original medicinesMap.
 	 * This method requires the most amount of thinking I guess. Here is a paper which we could try to implement in future::
 	 * http://http.developer.nvidia.com/GPUGems3/gpugems3_ch20.html
 	 */
