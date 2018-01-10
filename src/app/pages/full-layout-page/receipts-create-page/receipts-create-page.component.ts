@@ -160,7 +160,7 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
     let newReceipt = {
       patient: (<FormControl>this.receiptForm.controls['patient']).value,
       prescriptions: this.prescriptions,
-      creationDate: (new Date()).toString()
+      //creationDate: (new Date()).toString()
     }
 
     if (this.receiptForm.valid) {
