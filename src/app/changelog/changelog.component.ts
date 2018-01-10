@@ -1,8 +1,9 @@
-import {Component, ViewChild, ElementRef, ViewChildren, QueryList, ContentChild} from '@angular/core';
+import {Component, ViewChild, ElementRef} from '@angular/core';
 import * as THREE from 'three';
 import * as Tee from 'assets/WebGL/Dashboard/teechart.js';
-import {selector} from "rxjs/operator/publish";
-
+import { MedicalReceiptService } from '../shared/medical-receipts/medical-receipt.service'
+import { MedicalReceipt } from '../model/medical-receipt'
+import {recordMapEntry} from "@angular/compiler-cli/src/metadata/evaluator";
 
 
 @Component({
@@ -15,17 +16,55 @@ import {selector} from "rxjs/operator/publish";
 
 export class ChangeLogComponent {
   @ViewChild('rendererContainer') rendererContainer: ElementRef;
-   @ViewChild('style') style :  ElementRef;
+  @ViewChild('style') style :  ElementRef;
 
   canvas = null;
   activeCharts = [];
   scenes = [];
   renderer = null;
-  graphNr = 0;
-  constructor() {
+  graphNr = 2;
+  receipts: MedicalReceipt[] = [];
+  medicinesMap  = new Map();
+  fillsDataMap = new Map();
+
+  constructor(private receiptService: MedicalReceiptService) {
+
 
   }
 
+  getMostUsedMedicinesDataForGraphics()
+  {
+    return new Promise((resolve, reject) => {
+    this.receiptService.getReceipts().subscribe(receipts => {
+        this.receipts = receipts;
+        var indexFills = 0;
+        var indexNotFills = 0;
+        this.fillsDataMap.set("Filled",indexFills);
+        this.fillsDataMap.set("Not filled",indexNotFills);
+        for (var i = 0; i < this.receipts.length; i++) {
+          for (var j = 0; j < this.receipts[i].prescriptions.length; j++) {
+            var index = 1;
+            if (this.medicinesMap.has(this.receipts[i].prescriptions[j].medicine)) {
+              index = this.medicinesMap.get(this.receipts[i].prescriptions[j].medicine) + 1;
+              }
+            this.medicinesMap.set(this.receipts[i].prescriptions[j].medicine, index);
+
+            if(this.receipts[i].prescriptions[j].quantity == this.receipts[i].prescriptions[j].fills.length)
+            {
+              indexFills =  this.fillsDataMap.get("Fills") + 1;
+              this.fillsDataMap.set("Filled",indexFills);
+            }
+            else{
+             indexNotFills =  this.fillsDataMap.get("Not filled") + 1;
+             this.fillsDataMap.set("Not filled",indexNotFills);
+            }
+
+            }
+          }
+          resolve();
+        });
+    })
+  }
 
   init() {
 
@@ -55,10 +94,6 @@ export class ChangeLogComponent {
 
     canvas.width = 400;
     canvas.height = 500;
-    var ctx = canvas.getContext('2d');
-
-
-    //element.innerHTML.replace("canvas","canvas"+i);
 
     element.appendChild(canvas);
     // Look up the element that represents the area
@@ -69,21 +104,12 @@ export class ChangeLogComponent {
 
 
     content.appendChild( element );
-
-
-
-   //
-
     var camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
     camera.position.z = 400;
-
 
     //var camera = new THREE.PerspectiveCamera( 50, 1, 1, 10 );
     //camera.position.z = 2;
     scene.userData.camera = camera;
-
-
-
 
     var light = new THREE.DirectionalLight( 0xffffff, 0.5 );
     light.position.set( 1, 1, 1 );
@@ -92,12 +118,28 @@ export class ChangeLogComponent {
     this.scenes.push( scene );
 
   }
+
     this.rendererContainer.nativeElement.getElementsByTagName("body")[0].appendChild(content);
+
     for(var i = 0 ; i< this.graphNr; i++) {
       document.getElementsByTagName("canvas")[i].setAttribute("id", "canvas" + i)
-      console.log( document.getElementsByTagName("canvas")[i]);
-      this.createBarChart([1, 4, 3, 4], i);
+      switch(i){
+        case 0:
+          var labelsArr = Array.from(this.medicinesMap.keys());
+          this.createPieChart("Medicines Information","Most common medicines",Array.from(this.medicinesMap.values()), i,labelsArr);
+          break;
+        case 1:
+          var fullDataArray = [];
+          fullDataArray.push(this.fillsDataMap.get("Filled") + this.fillsDataMap.get("Not filled"));
+          fullDataArray.push(this.fillsDataMap.get("Filled"));
+          fullDataArray.push(this.fillsDataMap.get("Not filled"));
+          var labelsArray = ["Total prescriptions","Filled","Not filled"];
+          this.createBarChart("Prescription information","Filled to not filled prescription ratio",fullDataArray, i,labelsArray);
+          break;
+      }
+
     }
+
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setClearColor( 0xffffff, 1 );
     this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -105,10 +147,12 @@ export class ChangeLogComponent {
   }
 
   ngAfterViewInit() {
-    this.init();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
-    this.animate();
+    this.getMostUsedMedicinesDataForGraphics().then(() => {
+      this.init();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
+      this.animate();
+    });
   }
 
   animate() {
@@ -169,15 +213,16 @@ export class ChangeLogComponent {
    * @param dataInputs the data for the chart
    * @param canvasIndex the index of the canvas it will be drawn
    */
-  createPieChart(dataInputs,canvasIndex)
+  createPieChart(title,footer,dataInputs,canvasIndex,labelsArr)
   {
     // Create Chart
     var Chart1 = new Tee.Tee.Chart("canvas"+canvasIndex);
-    Chart1.title.text = "WebGL Pie Chart";
-    Chart1.footer.text = "TestFooter";
+    Chart1.title.text = title;
+    Chart1.footer.text = footer;
 
     // Add Bar series to Chart
     var pieData = new Tee.Tee.Pie( dataInputs );
+    pieData.data.labels = labelsArr;
     Chart1.addSeries(pieData);
     Chart1.panel.format.fill = "blue";
 
@@ -211,15 +256,16 @@ export class ChangeLogComponent {
      * @param dataInputs the data for the chart
      * @param canvasIndex the index of the canvas it will be drawn
      */
-   createBarChart(dataInputs,canvasIndex)
+   createBarChart(title,footer,dataInputs,canvasIndex,labels)
   {
 
     var Chart1 = new Tee.Tee.Chart("canvas"+canvasIndex);
-    Chart1.title.text = "WebGL Bar Chart";
-    Chart1.footer.text = "TestFooter";
+    Chart1.title.text = title;
+    Chart1.footer.text = footer;
 
     // Add Bar series to Chart:
     var bars = new Tee.Tee.Bar(dataInputs);
+    bars.data.labels = labels;
     //Chart1.addSeries(new Tee.Line()).addRandom(10);
     Chart1.addSeries(bars);
     Chart1.panel.format.fill = "blue";
