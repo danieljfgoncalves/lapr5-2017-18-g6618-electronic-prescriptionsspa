@@ -6,10 +6,10 @@
 export const environment = {
   production: true,
   medicines_backend: {
-    url: "http://lapr5-g6618-medicines-management.azurewebsites.net"
+    url: "https://lapr5-g6618-medicines-management.azurewebsites.net"
   },
   receipts_frontend: {
-    url: "http://lapr5-g6618-receipts-management.azurewebsites.net",
+    url: "https://lapr5-g6618-receipts-management.azurewebsites.net",
     client_id: 'JlBREWOiSAE87o0MZjymMkH8z5wPX7QW',
     client_secret: 'xVeQAFK7NeZZXSJ7ZQeA2H6ouILGkGIyxBNKVPo-8W5tzDC-0o_vIwF96veW9V7b'
   }
