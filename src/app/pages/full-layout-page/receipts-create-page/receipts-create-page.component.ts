@@ -11,6 +11,9 @@ import {
 // Pipes
 import { DatePipe } from '@angular/common';
 
+// Modals
+import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+
 // Services
 import { MedicalReceiptService } from '../../../shared/medical-receipts/medical-receipt.service'
 import { UserService } from 'app/shared/user.service';
@@ -25,11 +28,13 @@ import { PresentationService } from 'app/presentation.service';
 import { Medicine } from 'app/model/medicine';
 import { Posology } from 'app/model/posology';
 
+
 @Component({
   selector: 'app-receipts-create-page',
   templateUrl: './receipts-create-page.component.html',
   styleUrls: ['./receipts-create-page.component.scss']
 })
+
 export class MedicalReceiptCreatePageComponent implements OnInit {
 
   receipt: MedicalReceipt;
@@ -39,7 +44,11 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
   medicines: Medicine[];
   posologies: Posology[];
 
+  prescriptions = [];
+
   receiptForm: FormGroup;
+
+  modalRef;
 
   @Input() selectedDrug: string;
   @Input() selectedPresentation: string;
@@ -49,7 +58,8 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
   constructor(private receiptService: MedicalReceiptService,
     private usersService: UserService,
     private presentationsService: PresentationService,
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    private modalService: NgbModal) {
 
   }
 
@@ -60,61 +70,26 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
     Observable.forkJoin(
       this.receiptService.getDrugs(),
       this.usersService.getPatients(),
-      //this.receiptService.getMedicines(),
-      //this.presentationsService.getPresentations(),
-      //this.receiptService.getPosologies()
     ).subscribe(data => {
       this.drugs = data[0];
       this.patients = data[1];
-      //this.medicines = data[2];
-      //this.presentations = data[2];
-      //this.posologies = data[2];
-
     });
   }
 
   /**
-  * Sends update and create method requests to the api
-  * @method onSubmit
-  */
-  onSubmit() {
+   * Initialises the receiptForm 
+   * @method initForm
+   */
+  initForm(): void {
+    let patient: "patient";
+    let prescriptions: FormArray = new FormArray([]);
 
-    console.log(this.posologies);
-
-    let prescriptions = new Array();
-    for (let input of (<FormArray>this.receiptForm.controls['prescriptions']).value) {
-
-      let prescription = {
-        expirationDate: input.expiration,
-        quantity: input.quantity,
-        presentation: input.presentation,
-        drug: input.drug,
-        medicine: input.medicine,
-        posology: input.posology
-      }
-
-      prescriptions.push(prescription);
-    }
-
-    let newReceipt = {
-      patient: (<FormControl>this.receiptForm.controls['patient']).value,
-      physician: 'auth0|5a3bf3a04a068c157e7f11d1',
-      prescriptions: prescriptions,
-      creationDate: (new Date()).toString()
-    }
-
-    if (this.receiptForm.valid) {
-      console.log(newReceipt);
-      this.receiptService.postReceipt(newReceipt).subscribe(
-        res => {
-          console.log(res);
-          swal("Medical Receipts succesfully created!");
-        },
-        err => {
-          console.log("Error occured");
-        }
-      );
-    }
+    this.receiptForm = new FormGroup({
+      patient: new FormControl('', Validators.required),
+      prescriptions: prescriptions
+    })
+    // Creating a new presccription
+    this.addPrescription();
   }
 
   drugDropDownCallback(): void {
@@ -142,21 +117,64 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
 
   }
 
-  /**
-   * Initialises the receiptForm 
-   * @method initForm
+  /*
+   * Adds a prescription to the table when creating a new receipt.
    */
-  initForm(): void {
-    let patient: "patient";
-    let prescriptions: FormArray = new FormArray([]);
+  onSave() {
+    for (let input of (<FormArray>this.receiptForm.controls['prescriptions']).value) {
+      let prescription = {
+        expirationDate: input.expiration,
+        quantity: input.quantity,
+        presentation: input.presentation,
+        drug: input.drug,
+        medicine: input.medicine,
+        posology: input.posology,
+      }
 
-    this.receiptForm = new FormGroup({
-      patient: new FormControl('', Validators.required),
-      prescriptions: prescriptions
-    })
-    // Creating a new presccription
-    this.addPrescription();
+      this.prescriptions.push(prescription);
 
+      this.modalRef.close();
+    }
+  }
+
+  /**
+  * Sends update and create method requests to the api
+  * @method onSubmit
+  */
+  onSubmit() {
+
+    // let prescriptions = new Array();
+    // for (let prescription of this.prescriptions) {
+
+    //   let newPrescription = {
+    //     expirationDate: prescription.expirationDate,
+    //     quantity: prescription.quantity,
+    //     presentation: prescription.presentation,
+    //     drug: prescription.drug,
+    //     medicine: prescription.medicine,
+    //     posology: prescription.posology
+    //   }
+    //   prescriptions.push(newPrescription);
+    // }
+
+    let newReceipt = {
+      patient: (<FormControl>this.receiptForm.controls['patient']).value,
+      prescriptions: this.prescriptions,
+      creationDate: (new Date()).toString()
+    }
+
+    if (this.receiptForm.valid) {
+      console.log(newReceipt);
+      this.receiptService.postReceipt(newReceipt).subscribe(
+        res => {
+          console.log(res);
+          swal("Medical Receipts succesfully created!");
+        },
+        err => {
+          console.log(err);
+        }
+      );
+    }
   }
 
   /**
@@ -185,20 +203,18 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
     )
   }
 
+  /*
+   * Removes prescription from table when creating a new receipt.
+   */
   removePrescription(i: number) {
-    const control = <FormArray>this.receiptForm.controls['prescriptions'];
-    control.removeAt(i);
+    this.prescriptions.splice(i, 1);
   }
 
-  // change(event) {
-  //   let drugId = event.currentTarget.value;
-  //   let formArrayID = event.currentTarget.name;
-  //   let formArray = this.receiptForm.get('prescriptions');
-  // }
+  // MODAL
 
-  // getPresentations(name:String) {
-  //   this.presentationsService.getPresentations().subscribe(presentations => {
-  //     this.presentations = presentations.filter(presentation => presentation.drug == name);
-  //   })
-  // }
+  // Open default modal
+  open(content) {
+    this.modalRef = this.modalService.open(content);
+  }
+
 }

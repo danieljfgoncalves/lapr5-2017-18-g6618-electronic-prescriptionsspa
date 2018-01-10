@@ -10,6 +10,9 @@ import {
 // Pipes
 import { DatePipe } from '@angular/common';
 
+// Modals
+import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+
 // Services
 import { MedicalReceiptService } from '../../../shared/medical-receipts/medical-receipt.service'
 import { UserService } from 'app/shared/user.service';
@@ -40,13 +43,23 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
   medicines: Medicine[];
   posologies: Posology[];
 
+  prescriptions = [];
+
   receiptForm: FormGroup;
 
+  modalRef;
+
+  @Input() selectedDrug: string;
+  @Input() selectedPresentation: string;
+  @Input() isDrugSelected: boolean = false;
+  @Input() isPresentationSelected: boolean = false;
+
   constructor(private receiptService: MedicalReceiptService,
-              private usersService: UserService,
-              private presentationsService: PresentationService,
-              private fb: FormBuilder) { 
-              }
+    private usersService: UserService,
+    private presentationsService: PresentationService,
+    private fb: FormBuilder,
+    private modalService: NgbModal) {
+  }
 
   ngOnInit() {
 
@@ -55,32 +68,68 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
     Observable.forkJoin(
       this.receiptService.getDrugs(),
       this.usersService.getPatients(),
-      this.receiptService.getMedicines(),
-      this.receiptService.getPosologies(),
       this.receiptService.getReceipts()
     ).subscribe(data => {
       this.drugs = data[0];
-      this.patients = data[1];
-      this.medicines = data[2];
-      this.posologies = data[3];
-      this.receipts = data[4];
+      this.patients = data[1]
+      this.receipts = data[2];
     });
+  }
+
+  drugDropDownCallback(): void {
+    this.isDrugSelected = false; // clears form after selecting other drug
+    this.isPresentationSelected = false;
+    this.posologies = [];
+    Observable.forkJoin(
+      this.receiptService.getMedicinesByDrug(this.selectedDrug),
+      this.presentationsService.getPresentationsByDrug(this.selectedDrug)
+    ).subscribe(data => {
+      this.medicines = data[0],
+        this.presentations = data[1],
+        this.isDrugSelected = true // waits for data to be loaded before enable form
+    })
+  }
+
+  presentationDropDownCallback(): void {
+    this.isPresentationSelected = false; // clears form after selecting other presentation
+    Observable.forkJoin(
+      this.receiptService.getPosologiesByPresentation(this.selectedPresentation)
+    ).subscribe(data => {
+      this.posologies = data[0],
+        this.isPresentationSelected = true // waits for data to be loaded before enable form
+    })
+
   }
 
   onReceiptSelection() {
 
     let receiptId = (<FormControl>this.receiptForm.get('selectedReceipt')).value;
     this.receipt = this.findReceipt(receiptId).pop();
-
-    Observable.forkJoin(
-      this.presentationsService.getPresentations(),
-    ).subscribe(data => {
-      this.presentations = data[0];
-    });
+    this.prescriptions = this.receipt.prescriptions;
   }
 
-  findReceipt(id:String) {
-      return this.receipts.filter(receipt => receipt.id == id);
+  findReceipt(id: String) {
+    return this.receipts.filter(receipt => receipt.id == id);
+  }
+
+  /*
+   * Adds a prescription to the table when creating a new receipt.
+   */
+  onSave() {
+    for (let input of (<FormArray>this.receiptForm.controls['prescriptions']).value) {
+      let prescription = {
+        expirationDate: input.expiration,
+        quantity: input.quantity,
+        presentation: input.presentation,
+        drug: input.drug,
+        medicine: input.medicine,
+        posology: input.posology,
+      }
+
+      this.prescriptions.push(prescription);
+
+      this.modalRef.close();
+    }
   }
 
   /**
@@ -90,7 +139,7 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
   onSubmit() {
 
     let prescriptions = new Array();
-    for(let input of (<FormArray>this.receiptForm.controls['prescriptions']).value) {
+    for (let input of (<FormArray>this.receiptForm.controls['prescriptions']).value) {
 
       let prescription = {
         expirationDate: input.expiration,
@@ -140,7 +189,7 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
     })
     // Creating a new presccription
     this.addPrescription();
- 
+
   }
 
   /**
@@ -167,6 +216,20 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
         posology: new FormControl(posology, Validators.required)
       })
     )
+  }
+
+  /*
+ * Removes prescription from table when creating a new receipt.
+ */
+  removePrescription(i: number) {
+    this.prescriptions.splice(i, 1);
+  }
+
+  // MODAL
+
+  // Open default modal
+  open(content) {
+    this.modalRef = this.modalService.open(content);
   }
 
   // change(event) {

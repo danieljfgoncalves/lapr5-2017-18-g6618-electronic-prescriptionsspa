@@ -3,175 +3,238 @@
     <div class="content-header mb-3">Create Medical Receipt</div>
   </div>
 </div>
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="card-title" id="horz-layout-basic">Receipt Info</h4>
-        </div>
-        <div class="card-body">
-          <div class="px-3">
-             
-            <!-- START FORM -->
-            <form class="form form-horizontal" [formGroup]="receiptForm" (ngSubmit)="onSubmit()" novalidate>
-              <div class="form-body">
-                  
-                <h4 class="form-section"><i class="ft-user"></i> Receipt Info</h4>
-                  
-                <div class="form-group row">
-                  <label class="col-md-3 label-control" for="receiptPatient">Patient: </label>
-                  <div class="col-md-9">
-                    <div class="position-relative has-icon-right">
-                      <select id="receiptPatient" name="patientInput" class="form-control" formControlName="patient">
-                        <option value="none" selected="" disabled="">Select Patient </option>
-                        <option *ngFor="let patient of patients" value="{{patient.id}}">{{patient.name}}</option>
-                      </select>
-                      <div class="form-control-position" style="margin-right:5px;">
-                        <i class="ft-user"></i>
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title" id="horz-layout-basic">Receipt Info</h4>
+      </div>
+      <div class="card-body">
+        <div class="px-3">
+
+          <!-- START FORM -->
+          <form class="form form-horizontal" [formGroup]="receiptForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="form-body">
+
+              <h4 class="form-section">
+                <i class="ft-user"></i> Receipt Info</h4>
+
+              <div class="form-group row">
+                <label class="col-md-3 label-control" for="receiptPatient">Patient: </label>
+                <div class="col-md-9">
+                  <div class="position-relative has-icon-right">
+                    <select id="receiptPatient" name="patientInput" class="form-control" formControlName="patient">
+                      <option value="none" selected="" disabled="">Select Patient </option>
+                      <option *ngFor="let patient of patients" value="{{patient.id}}">{{patient.name}}</option>
+                    </select>
+                    <div class="form-control-position" style="margin-right:5px;">
+                      <i class="ft-user"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h4 class="form-section">
+                <i class="ft-file-text"></i> Prescriptions</h4>
+
+              <!--Modal with Default options starts-->
+              <button class="btn btn-lg btn-outline-primary" (click)="open(content)">
+                <i class="fa fa-plus"></i> Add Prescription</button>
+
+              <div class="col-sm-12 col-md-12 col-lg-4">
+                <div class="card">
+                  <div class="card-header">
+                  </div>
+                  <div class="card-body">
+                    <div class="card-block">
+                      <ng-template #content let-c="close" let-d="dismiss">
+                        <div class="modal-header">
+                          <h4 class="modal-title">New Prescription</h4>
+                          <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div formArrayName="prescriptions" *ngFor="let prescription of receiptForm.controls['prescriptions'].controls; let i = index">
+                            <div class="card" formGroupName="{{i}}" style="padding: 20px;border:1px solid #ccc!important;padding-top: 5px;padding-right: 20px;padding-bottom: 10px;padding-left: 20px;">
+                              <div class="card-header">
+                                <h6 class="form-section">
+                                  <i class="fa fa-hashtag"></i>{{prescriptions.length+1}}
+                                  <i class="fa fa-times pull-right" *ngIf="receiptForm.controls.prescriptions.controls.length > 1" (click)="removePrescription(i)"></i>
+                                </h6>
+                              </div>
+                              <div class="card-body">
+                                <div class="form-group row">
+                                  <div class="col-md-12">
+                                    <div class="form-group row">
+                                      <label class="col-md-5 label-control" for="prescriptionExpDate">Expiration:
+                                        <i class="fa fa-calendar-o"></i>
+                                      </label>
+                                      <div class="col-md-12">
+                                        <div class="position-relative has-icon-left">
+                                          <input type="date" id="prescriptionExpDate" class="form-control" formControlName="expiration" required valueAsDate>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-12">
+                                    <div class="form-group row">
+                                      <label class="col-md-5 label-control" for="prescriptionQty">Quantity:
+                                        <i class="fa fa-balance-scale"></i>
+                                      </label>
+                                      <div class="col-md-12">
+                                        <div class="position-relative has-icon-left">
+                                          <input type="number" id="prescriptionQty" class="form-control" formControlName="quantity" required>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-12">
+                                    <div class="form-group row">
+                                      <label class="col-md-5 label-control" for="prescriptionDrug">Drug:
+                                        <i class="fa fa-adjust"></i>
+                                      </label>
+                                      <div class="col-md-12">
+                                        <div class="position-relative has-icon-right">
+                                          <select id="prescriptionDrug" name="{{i}}" (change)="drugDropDownCallback()" class="form-control" formControlName="drug"
+                                            [(ngModel)]="selectedDrug">
+                                            <option value="none" selected="" disabled="">Select Drug </option>
+                                            <option *ngFor="let drug of drugs" value="{{drug.name}}">{{drug.name}}</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-12">
+                                    <div class="form-group row">
+                                      <label class="col-md-5 label-control" for="prescriptionMedicine">Medicine:
+                                        <i class="fa fa-medkit"></i>
+                                      </label>
+                                      <div class="col-md-12">
+                                        <div class="position-relative has-icon-right">
+                                          <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="isDrugSelected">
+                                            <option value="none" selected="" disabled="">Select Medicine </option>
+                                            <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
+                                          </select>
+                                          <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="!isDrugSelected" disabled>
+                                            <option value="none" selected="" disabled="">Select Medicine </option>
+                                            <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-12">
+                                    <div class="form-group row">
+                                      <label class="col-md-5 label-control" for="prescriptionPresentation">Presentation:
+                                        <i class="fa fa-id-card"></i>
+                                      </label>
+                                      <div class="col-md-12">
+                                        <div class="position-relative has-icon-right">
+                                          <select id="prescriptionPresentation" name="{{i}}" (change)="presentationDropDownCallback()" class="form-control" formControlName="presentation"
+                                            [(ngModel)]="selectedPresentation" *ngIf="isDrugSelected">
+                                            <option value="none" selected="" disabled="">Select Presentation </option>
+                                            <option *ngFor="let presentation of presentations" value="{{presentation.id}}">{{presentation.form}} | {{presentation.concentration}}</option>
+                                          </select>
+                                          <select id="prescriptionPresentation" name="{{i}}" (change)="presentationDropDownCallback()" class="form-control" formControlName="presentation"
+                                            [(ngModel)]="selectedPresentation" *ngIf="!isDrugSelected" disabled>
+                                            <option value="none" selected="" disabled="">Select Presentation </option>
+                                            <option *ngFor="let presentation of presentations" value="{{presentation.id}}">{{presentation.form}} | {{presentation.concentration}}</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-12">
+                                    <div class="form-group row">
+                                      <label class="col-md-5 label-control" for="prescriptionPosology">Posology:
+                                        <i class="fa fa-spoon"></i>
+                                      </label>
+                                      <div class="col-md-12">
+                                        <div class="position-relative has-icon-right">
+                                          <select id="posology" name="{{i}}" class="form-control" formControlName="posology" *ngIf="isPresentationSelected">
+                                            <option value="none" selected="" disabled="">Select Posology </option>
+                                            <option *ngFor="let posology of posologies" value="{{posology.id}}">{{posology.period}}</option>
+                                          </select>
+                                          <select id="posology" name="{{i}}" class="form-control" formControlName="posology" *ngIf="!isPresentationSelected" disabled>
+                                            <option value="none" selected="" disabled="">Select Posology </option>
+                                            <option *ngFor="let posology of posologies" value="{{posology.id}}"> {{posology.period}}</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- ADD MORE INPUTS HERE -->
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary btn-raised" (click)="c('Close click')">Cancel</button>
+                          <button type="button" class="btn btn-raised btn-primary" id="basic-alert" (click)="onSave()" [disabled]="!receiptForm.valid"
+                            style="margin-left: 1rem;">
+                            <i class="fa fa-check-square-o"></i> Save</button>
+                        </div>
+                      </ng-template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--Modal with Default options ends-->
+
+              <!--Basic Table Starts-->
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="card">
+                      <div class="card-header">
+                        <h4 class="card-title">Prescriptions</h4>
+                      </div>
+                      <div class="card-body">
+                        <div class="card-block">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>#</th>
+                                <th>Expiration Date</th>
+                                <th>Quantity</th>
+                                <th>Drug</th>
+                                <th>Medicine</th>
+                                <!-- <th>Presentation</th> -->
+                                <!-- <th>Posology</th> -->
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let prescription of prescriptions; let i = index">
+                              <tr>
+                                <td> {{i+1}}</td>
+                                <td>{{prescriptions[i].expirationDate}}</td>
+                                <td>{{prescriptions[i].quantity}}</td>
+                                <td>{{prescriptions[i].drug}}</td>
+                                <td>{{prescriptions[i].medicine}}</td>
+                                <!-- <td>{{prescriptions[i].presentation}}</td> -->
+                                <!-- <td>{{prescriptions[i].posology}}</td> -->
+                                <td><button type="button" class="btn btn-secondary btn-raised btn-sm" (click)="removePrescription(i)">x</button></td>
+                              </tr>
+                            </ng-container>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                
-                <h4 class="form-section"><i class="ft-file-text"></i> Prescriptions</h4>
-                
-                <div class="form-actions" style="border-top:none;">
-                  <button type="button" class="btn btn-raised btn-primary" (click)="addPrescription()" style="margin-left: 1rem;">
-                    <i class="fa fa-plus"></i> Add Prescription
-                  </button>
-                </div>
-                <div formArrayName="prescriptions" *ngFor="let prescription of receiptForm.controls['prescriptions'].controls; let i = index">
-                  <div class="card" formGroupName="{{i}}" style="padding: 20px;border:1px solid #ccc!important;padding-top: 5px;padding-right: 20px;padding-bottom: 10px;padding-left: 20px;">
-                    <div class="card-header"> 
-                      <h6 class="form-section">
-                        <i class="fa fa-hashtag"></i>{{i+1}}
-                        <i class="fa fa-times pull-right" *ngIf="receiptForm.controls.prescriptions.controls.length > 1" (click)="removePrescription(i)"></i></h6>
-                    </div>
-                    <div class="card-body">
-                      <div class="form-group row">
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-md-3 label-control" for="prescriptionExpDate">Expiration: </label>
-                            <div class="col-md-9">
-                              <div class="position-relative has-icon-left">
-                                <input type="date" id="prescriptionExpDate" class="form-control" formControlName="expiration" required valueAsDate>
-                                <div class="form-control-position">
-                                  <i class="fa fa-calendar-o"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-md-3 label-control" for="prescriptionQty">Quantity: </label>
-                            <div class="col-md-9">
-                              <div class="position-relative has-icon-left">
-                                <input type="number" id="prescriptionQty" class="form-control" formControlName="quantity" required>
-                                <div class="form-control-position">
-                                  <i class="fa fa-balance-scale"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-md-3 label-control" for="prescriptionDrug">Drug: </label>
-                            <div class="col-md-9">
-                              <div class="position-relative has-icon-right">
-                                <select id="prescriptionDrug" name="{{i}}" (change)="drugDropDownCallback()" class="form-control" formControlName="drug" [(ngModel)]="selectedDrug">
-                                  <option value="none" selected="" disabled="">Select Drug </option>
-                                  <option *ngFor="let drug of drugs" value="{{drug.name}}">{{drug.name}}</option>
-                                </select>
-                                <div class="form-control-position" style="margin-right:5px;">
-                                  <i class="fa fa-adjust"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-md-3 label-control" for="prescriptionMedicine">Medicine: </label>
-                            <div class="col-md-9">
-                              <div class="position-relative has-icon-right">
-                                <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="isDrugSelected">
-                                  <option value="none" selected="" disabled="">Select Medicine </option>
-                                  <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
-                                </select>
-                                <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="!isDrugSelected" disabled>
-                                  <option value="none" selected="" disabled="">Select Medicine </option>
-                                  <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
-                                </select>
-                                <div class="form-control-position" style="margin-right:5px;">
-                                  <i class="fa fa-medkit"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-md-3 label-control" for="prescriptionPresentation">Presentation: </label>
-                            <div class="col-md-9">
-                              <div class="position-relative has-icon-right">
-                                <select id="prescriptionPresentation" name="{{i}}" (change)="presentationDropDownCallback()" class="form-control" formControlName="presentation" [(ngModel)]="selectedPresentation" *ngIf="isDrugSelected">
-                                  <option value="none" selected="" disabled="">Select Presentation </option>
-                                  <option *ngFor="let presentation of presentations" value="{{presentation.id}}">{{presentation.form}} | {{presentation.concentration}}</option>
-                                </select>
-                                <select id="prescriptionPresentation" name="{{i}}" (change)="presentationDropDownCallback()" class="form-control" formControlName="presentation" [(ngModel)]="selectedPresentation" *ngIf="!isDrugSelected" disabled>
-                                  <option value="none" selected="" disabled="">Select Presentation </option>
-                                  <option *ngFor="let presentation of presentations" value="{{presentation.id}}">{{presentation.form}} | {{presentation.concentration}}</option>
-                                </select>
-                                <div class="form-control-position" style="margin-right:5px;">
-                                  <i class="fa fa-id-card"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group row">
-                            <label class="col-md-3 label-control" for="prescriptionPosology">Posology: </label>
-                            <div class="col-md-9">
-                              <div class="position-relative has-icon-right">
-                                <select id="posology" name="{{i}}" class="form-control" formControlName="posology" *ngIf="isPresentationSelected">
-                                  <option value="none" selected="" disabled="">Select Posology </option>
-                                  <option *ngFor="let posology of posologies" value="{{posology.id}}">{{posology.period}}</option>
-                                </select>
-                                <select id="posology" name="{{i}}" class="form-control" formControlName="posology" *ngIf="!isPresentationSelected" disabled>
-                                  <option value="none" selected="" disabled="">Select Posology </option>
-                                  <option *ngFor="let posology of posologies" value="{{posology.id}}"> {{posology.period}}</option>
-                                </select>
-                                <div class="form-control-position" style="margin-right:5px;">
-                                  <i class="fa fa-spoon"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- ADD MORE INPUTS HERE -->
-                </div>
-              </div>
+              <!--Basic Table Ends-->
 
-              <div class="form-actions">
-                <!-- [disabled]="!receiptForm.valid" -->
-<button type="button" class="btn btn-raised btn-primary" id="basic-alert" (click)="onSubmit()" [disabled]="!receiptForm.valid"
-  style="margin-left: 1rem;">
-
-                  <i class="fa fa-check-square-o"></i> Create
-                </button>
-              </div>
-            </form>
+            </div>
+          </form>
           <!-- END FORM -->
 
+          <button class="btn btn-lg btn-outline-primary" (click)="onSubmit()">
+              <i class="fa fa-plus"></i> Create</button>
 
-          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
