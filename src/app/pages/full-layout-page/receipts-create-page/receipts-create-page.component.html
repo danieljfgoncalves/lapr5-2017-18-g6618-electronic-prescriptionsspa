@@ -183,29 +183,29 @@
               <!--Modal with Default options ends-->
 
               <!--Basic Table Starts-->
-                <div class="row">
-                  <div class="col-sm-12">
-                    <div class="card">
-                      <div class="card-header">
-                        <h4 class="card-title">Prescriptions</h4>
-                      </div>
-                      <div class="card-body">
-                        <div class="card-block">
-                          <table class="table">
-                            <thead>
-                              <tr>
-                                <th>#</th>
-                                <th>Expiration Date</th>
-                                <th>Quantity</th>
-                                <th>Drug</th>
-                                <th>Medicine</th>
-                                <!-- <th>Presentation</th> -->
-                                <!-- <th>Posology</th> -->
-                                <th></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                                <ng-container *ngFor="let prescription of prescriptions; let i = index">
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="card-title">Prescriptions</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="card-block">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Expiration Date</th>
+                              <th>Quantity</th>
+                              <th>Drug</th>
+                              <th>Medicine</th>
+                              <!-- <th>Presentation</th> -->
+                              <!-- <th>Posology</th> -->
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <ng-container *ngFor="let prescription of prescriptions; let i = index">
                               <tr>
                                 <td> {{i+1}}</td>
                                 <td>{{prescriptionsVisual[i].expirationDate}}</td>
@@ -214,16 +214,18 @@
                                 <td>{{prescriptionsVisual[i].medicine}}</td>
                                 <!-- <td>{{prescriptions[i].presentation}}</td> -->
                                 <!-- <td>{{prescriptions[i].posology}}</td> -->
-                                <td><button type="button" class="btn btn-secondary btn-raised btn-sm" (click)="removePrescription(i)">x</button></td>
+                                <td>
+                                  <button type="button" class="btn btn-secondary btn-raised btn-sm" (click)="removePrescription(i)">x</button>
+                                </td>
                               </tr>
                             </ng-container>
-                            </tbody>
-                          </table>
-                        </div>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
               <!--Basic Table Ends-->
 
             </div>
@@ -231,7 +233,9 @@
           <!-- END FORM -->
 
           <button type="button" class="btn btn-lg btn-outline-primary" (click)="onSubmit()">
-              <i class="fa fa-plus"></i> Create</button>
+            <i class="fa fa-plus"></i> Create</button>
+          <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+          />
 
         </div>
       </div>

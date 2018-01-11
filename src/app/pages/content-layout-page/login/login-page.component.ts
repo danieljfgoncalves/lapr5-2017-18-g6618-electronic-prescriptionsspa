@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from "@angular/router";
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { AuthService } from '../../../shared/auth/auth.service';
+import swal from 'sweetalert2';
 
 @Component({
     selector: 'app-login-page',
@@ -14,13 +15,14 @@ export class LoginPageComponent implements OnInit {
 
     model: any = {};
     error = '';
+    loading = false;
 
     @ViewChild('f') loginForm: NgForm;
 
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private authService: AuthService ) { }
+        private authService: AuthService) { }
 
     ngOnInit() {
         this.authService.logout();
@@ -33,14 +35,16 @@ export class LoginPageComponent implements OnInit {
 
     // On submit button click    
     onLogin() {
-
+        this.loading = true;
         this.authService.signinUser(this.model.name, this.model.passwd)
             .subscribe(result => {
                 if (result === true) {
                     this.router.navigate(['/main/dashboard'], { replaceUrl: true });
+                    this.loading = false;
                 } else {
-                    // TODO: Alert view
-                    this.error = 'Username or password is incorrect';
+                    this.loading = false;
+                    this.error = 'Login Failed!';
+                    swal(this.error);
                 }
             });
 

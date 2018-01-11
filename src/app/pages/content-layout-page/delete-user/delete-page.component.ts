@@ -5,6 +5,7 @@ import { AuthService } from 'app/shared/auth/auth.service';
 import { checkAndUpdateBinding } from '@angular/core/src/view/util';
 import { checkServerIdentity } from 'tls';
 import { User } from 'app/model/user';
+import swal from 'sweetalert2';
 
 @Component({
     selector: 'app-register-page',
@@ -18,6 +19,7 @@ export class DeletePageComponent {
     error = '';
     checked = false;
     user: User;
+    loading = false;
 
     @ViewChild('f') registerForm: NgForm;    
 
@@ -45,22 +47,25 @@ export class DeletePageComponent {
 
     //  On submit click, reset field value
     onSubmit() {
-
+        this.loading = true;
         if (this.checked) {
             this.authService.deleteUser(this.user.id)
                 .subscribe(result => {
                     if (result === true) {
                         this.router.navigate(['login'], { relativeTo: this.route.parent });
+                        swal("User successfully deleted!");
+                        this.loading = false;
                     } else {
-                        // TODO: Alert view
+                        this.loading = false;
+                        swal("User delete failed!");
                         this.error = 'Invalid';
                     }
                 });
             this.registerForm.reset();
-            
         } else {
-            // TODO: Alert view
             this.error = 'Invalid';
+            swal(this.error);
+            this.loading = false;
         }
 
     }
