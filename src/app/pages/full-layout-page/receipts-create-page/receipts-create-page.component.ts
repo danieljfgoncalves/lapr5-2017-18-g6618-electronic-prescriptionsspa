@@ -45,6 +45,7 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
   posologies: Posology[];
 
   prescriptions = [];
+  prescriptionsVisual = [];
 
   receiptForm: FormGroup;
 
@@ -132,9 +133,28 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
       }
 
       this.prescriptions.push(prescription);
+      this.addVisualPrescription(prescription);
 
       this.modalRef.close();
     }
+  }
+
+  addVisualPrescription(prescription) {
+    var visualPresc = {
+      expirationDate: prescription.expiration,
+      quantity: prescription.quantity,
+      presentation: prescription.presentation,
+      drug: prescription.drug,
+      medicine: null,
+      posology: prescription.posology
+    };
+    for (let i = 0; i < this.medicines.length; i++) {
+      let med = this.medicines[i];
+      if (med.id === prescription.medicine) {
+        visualPresc.medicine = med.name;
+      }
+    }
+    this.prescriptionsVisual.push(visualPresc);
   }
 
   /**
@@ -208,12 +228,18 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
    */
   removePrescription(i: number) {
     this.prescriptions.splice(i, 1);
+    this.prescriptionsVisual.splice(i, 1);
   }
 
   // MODAL
 
   // Open default modal
   open(content) {
+
+    this.receiptForm.controls['prescriptions'].reset();
+    this.isDrugSelected = false;
+    this.isPresentationSelected = false;
+    
     this.modalRef = this.modalService.open(content);
   }
 

@@ -37,7 +37,7 @@
                 <i class="ft-file-text"></i> Prescriptions</h4>
 
               <!--Modal with Default options starts-->
-              <button class="btn btn-lg btn-outline-primary" (click)="open(content)">
+              <button type="button" class="btn btn-lg btn-outline-primary" (click)="open(content)">
                 <i class="fa fa-plus"></i> Add Prescription</button>
 
               <div class="col-sm-12 col-md-12 col-lg-4">
@@ -113,11 +113,11 @@
                                         <div class="position-relative has-icon-right">
                                           <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="isDrugSelected">
                                             <option value="none" selected="" disabled="">Select Medicine </option>
-                                            <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
+                                            <option *ngFor="let medicine of medicines" value="{{medicine.id}}">{{medicine.name}}</option>
                                           </select>
                                           <select id="prescriptionMedicine" name="{{i}}" class="form-control" formControlName="medicine" *ngIf="!isDrugSelected" disabled>
                                             <option value="none" selected="" disabled="">Select Medicine </option>
-                                            <option *ngFor="let medicine of medicines" value="{{medicine.name}}">{{medicine.name}}</option>
+                                            <option *ngFor="let medicine of medicines" value="{{medicine.id}}">{{medicine.name}}</option>
                                           </select>
                                         </div>
                                       </div>
@@ -208,10 +208,10 @@
                                 <ng-container *ngFor="let prescription of prescriptions; let i = index">
                               <tr>
                                 <td> {{i+1}}</td>
-                                <td>{{prescriptions[i].expirationDate}}</td>
-                                <td>{{prescriptions[i].quantity}}</td>
-                                <td>{{prescriptions[i].drug}}</td>
-                                <td>{{prescriptions[i].medicine}}</td>
+                                <td>{{prescriptionsVisual[i].expirationDate}}</td>
+                                <td>{{prescriptionsVisual[i].quantity}}</td>
+                                <td>{{prescriptionsVisual[i].drug}}</td>
+                                <td>{{prescriptionsVisual[i].medicine}}</td>
                                 <!-- <td>{{prescriptions[i].presentation}}</td> -->
                                 <!-- <td>{{prescriptions[i].posology}}</td> -->
                                 <td><button type="button" class="btn btn-secondary btn-raised btn-sm" (click)="removePrescription(i)">x</button></td>
@@ -230,7 +230,7 @@
           </form>
           <!-- END FORM -->
 
-          <button class="btn btn-lg btn-outline-primary" (click)="onSubmit()">
+          <button type="button" class="btn btn-lg btn-outline-primary" (click)="onSubmit()">
               <i class="fa fa-plus"></i> Create</button>
 
         </div>

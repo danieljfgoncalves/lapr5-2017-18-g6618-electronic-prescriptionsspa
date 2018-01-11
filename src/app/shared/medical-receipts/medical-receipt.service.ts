@@ -189,7 +189,7 @@ export class MedicalReceiptService {
       for (let medicine of json) {
         if (medicine.drug.name == drug) {
           let newMed: Medicine = {
-            id: medicine.medicineId,
+            id: medicine.id,
             name: medicine.name
           }
           medicines.push(newMed);
