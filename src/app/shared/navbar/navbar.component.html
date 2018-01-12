@@ -25,6 +25,9 @@
                             <p class="d-none">fullscreen</p>
                         </a>
                     </li>
+                    <li>
+                        <a *ngIf="userInfo"> <sub><b>Welcome {{userInfo.name}}</b></sub></a>
+                    </li>
                     <!--
                     <li class="nav-item" ngbDropdown placement="bottom-right">
                         <a class="nav-link position-relative" id="dropdownBasic2" ngbDropdownToggle>
