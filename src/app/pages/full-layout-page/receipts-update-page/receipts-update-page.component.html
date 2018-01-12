@@ -47,10 +47,7 @@
                   <label class="col-md-3 label-control" for="receiptPatient">Patient: </label>
                   <div class="col-md-9">
                     <div class="position-relative has-icon-right">
-                      <select id="receiptPatient" name="patientInput" class="form-control" formControlName="patient">
-                        <option value="none" selected="" disabled="">Select Patient </option>
-                        <option *ngFor="let patient of patients" value="{{patient.id}}">{{patient.name}}</option>
-                      </select>
+                      <input type="text" class="form-control" id="readonlyInput" readonly="readonly" value="{{receiptPatient.name}}">
                       <div class="form-control-position" style="margin-right:5px;">
                         <i class="ft-user"></i>
                       </div>
@@ -258,6 +255,8 @@
             <div class="form-actions">
               <button type="button" class="btn btn-lg btn-outline-primary" (click)="onSubmit()">
                 <i class="fa fa-plus"></i> Update</button>
+              <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+              />
             </div>
           </form>
           <!-- END FORM -->

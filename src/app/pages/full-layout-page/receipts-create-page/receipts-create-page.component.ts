@@ -213,7 +213,7 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
         res => {
           console.log(res);
           this.loading = false;
-          swal("Medical Receipts succesfully created!");
+          swal("Medical Receipt succesfully created!");
         },
         err => {
           this.loading = false;

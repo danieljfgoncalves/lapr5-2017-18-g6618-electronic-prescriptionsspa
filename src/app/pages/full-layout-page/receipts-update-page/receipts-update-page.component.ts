@@ -38,7 +38,7 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
   receipt: MedicalReceipt = null;
 
   receipts: MedicalReceipt[];
-  patients: User[];
+  receiptPatient: User;
   drugs: Drug[];
   presentations: Presentation[];
   medicines: Medicine[];
@@ -50,6 +50,7 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
   receiptForm: FormGroup;
 
   modalRef;
+  loading = false;
 
   @Input() selectedDrug: string;
   @Input() selectedPresentation: string;
@@ -69,12 +70,10 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
 
     Observable.forkJoin(
       this.receiptService.getDrugs(),
-      this.usersService.getPatients(),
-      this.receiptService.getReceipts()
+      this.receiptService.getReceipts(),
     ).subscribe(data => {
       this.drugs = data[0];
-      this.patients = data[1]
-      this.receipts = data[2];
+      this.receipts = data[1];
     });
   }
 
@@ -107,6 +106,7 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
 
     let receiptId = (<FormControl>this.receiptForm.get('selectedReceipt')).value;
     this.receipt = this.findReceipt(receiptId).pop();
+    this.receiptPatient = this.receipt.patient;
 
     this.mapPrescriptions(this.receipt.prescriptions);
   }
@@ -229,9 +229,9 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
   * @method onSubmit
   */
   onSubmit() {
-
+    this.loading = true;
     let newReceipt = {
-      patient: (<FormControl>this.receiptForm.controls['patient']).value,
+      patient: this.receiptPatient.id,
       prescriptions: this.prescriptions
     }
 
@@ -240,10 +240,13 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
       this.receiptService.putReceipt(newReceipt, this.receipt.id).subscribe(
         res => {
           console.log(res);
-          swal("Medical Receipts succesfully updated!");
+          this.loading = false;
+          swal("Medical Receipt succesfully updated!");
         },
         err => {
+          this.loading = false;
           console.log(err);
+          swal("The receipt update failed!");
         }
       );
     }
@@ -260,7 +263,6 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
 
     this.receiptForm = new FormGroup({
       selectedReceipt: new FormControl(receipt),
-      patient: new FormControl('', Validators.required),
       prescriptions: prescriptions
     })
     // Creating a new presccription
