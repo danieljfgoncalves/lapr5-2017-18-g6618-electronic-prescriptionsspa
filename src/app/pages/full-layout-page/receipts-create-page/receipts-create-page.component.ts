@@ -50,6 +50,7 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
   receiptForm: FormGroup;
 
   modalRef;
+  loading = false;
 
   @Input() selectedDrug: string;
   @Input() selectedPresentation: string;
@@ -182,7 +183,7 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
   * @method onSubmit
   */
   onSubmit() {
-
+    this.loading = true;
     // let prescriptions = new Array();
     // for (let prescription of this.prescriptions) {
 
@@ -211,10 +212,13 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
       this.receiptService.postReceipt(newReceipt).subscribe(
         res => {
           console.log(res);
+          this.loading = false;
           swal("Medical Receipts succesfully created!");
         },
         err => {
+          this.loading = false;
           console.log(err);
+          swal("Medical Receipt creation failed!")
         }
       );
     }

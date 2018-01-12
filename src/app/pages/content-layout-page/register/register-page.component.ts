@@ -5,6 +5,7 @@ import { AuthService } from 'app/shared/auth/auth.service';
 import { checkAndUpdateBinding } from '@angular/core/src/view/util';
 import { checkServerIdentity } from 'tls';
 import * as alertFunctions from '../../../shared/data/sweet-alerts';
+import swal from 'sweetalert2';
 
 @Component({
     selector: 'app-register-page',
@@ -17,6 +18,7 @@ export class RegisterPageComponent {
     model: any = {};
     error = '';
     checked = false;
+    loading = false;
 
     @ViewChild('f') registerForm: NgForm;
 
@@ -52,22 +54,25 @@ export class RegisterPageComponent {
 
     //  On submit click, reset field value
     onSubmit() {
-
+        this.loading = true;
         if (this.checked) {
             this.authService.signupUser(this.model.username, this.model.password, this.model.email)
                 .subscribe(result => {
                     if (result === true) {
+                        this.loading = false;
+                        swal("User successfully registered!");
                         this.router.navigate(['login'], { relativeTo: this.route.parent });
                     } else {
-                        // TODO: Alert view
                         this.error = 'Invalid';
+                        swal("User register failed!");
+                        this.loading = false;
                     }
                 });
-
             this.registerForm.reset();
         } else {
-            // TODO: Alert view
             this.error = 'Invalid';
+            swal(this.error);
+            this.loading = false;
         }
 
     }

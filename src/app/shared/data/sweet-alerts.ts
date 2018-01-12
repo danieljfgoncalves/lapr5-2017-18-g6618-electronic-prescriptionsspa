@@ -113,7 +113,7 @@ export function privacyPolicyAlert() {
         <h3>CONTROLLING YOUR PERSONAL DATA</h3>
         <p>Other Users may be able to identify you, or associate you with your account, if you include your personal information in any content you post or make publicly available.</p>
         <p>You may control and restrict the personal data you share with us by visiting the Settings section of your User Account. </p>
-        <p>If you have any questions regarding the ways you can control your personal data, please contact us at 1060503@isep.ipp.pt.</p>
+        <p>If you have any questions regarding the ways you can control your personal data, please contact us at building.blocks.isep@gmail.com.</p>
         <br/>
         <h3>TERMINATION</h3>
         <p>As mentioned, you may at any time review or change the personal information we maintain about you by contacting Electronic Prescriptions ISEP. Upon your request, we will delete your contact information and personal data from our active databases.</p>
