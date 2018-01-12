@@ -199,8 +199,8 @@
                                 <th>Quantity</th>
                                 <th>Drug</th>
                                 <th>Medicine</th>
-                                <!-- <th>Presentation</th> -->
-                                <!-- <th>Posology</th> -->
+                                <th>Presentation</th>
+                                <th>Posology</th>
                                 <th></th>
                               </tr>
                             </thead>
@@ -212,8 +212,8 @@
                                 <td>{{prescriptionsVisual[i].quantity}}</td>
                                 <td>{{prescriptionsVisual[i].drug}}</td>
                                 <td>{{prescriptionsVisual[i].medicine}}</td>
-                                <!-- <td>{{prescriptions[i].presentation}}</td> -->
-                                <!-- <td>{{prescriptions[i].posology}}</td> -->
+                                <td>{{prescriptionsVisual[i].presentation.form}} {{prescriptionsVisual[i].presentation.concentration}}</td>
+                                <td>{{prescriptionsVisual[i].posology.technique}} {{prescriptionsVisual[i].posology.quantity}}</td>
                                 <td><button type="button" class="btn btn-secondary btn-raised btn-sm" (click)="removePrescription(i)">x</button></td>
                               </tr>
                             </ng-container>

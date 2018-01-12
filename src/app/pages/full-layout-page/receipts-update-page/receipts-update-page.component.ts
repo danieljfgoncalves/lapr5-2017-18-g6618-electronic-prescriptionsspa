@@ -16,6 +16,7 @@ import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-
 // Services
 import { MedicalReceiptService } from '../../../shared/medical-receipts/medical-receipt.service'
 import { UserService } from 'app/shared/user.service';
+
 // Models
 import { MedicalReceipt } from '../../../model/medical-receipt'
 import { User } from 'app/model/user';
@@ -44,6 +45,7 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
   posologies: Posology[];
 
   prescriptions = [];
+  prescriptionsVisual = [];
 
   receiptForm: FormGroup;
 
@@ -105,7 +107,58 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
 
     let receiptId = (<FormControl>this.receiptForm.get('selectedReceipt')).value;
     this.receipt = this.findReceipt(receiptId).pop();
-    this.prescriptions = this.receipt.prescriptions;
+
+    this.mapPrescriptions(this.receipt.prescriptions);
+  }
+
+  mapPrescriptions(prescs) {
+
+    prescs.forEach(presc => {
+      this.receiptService.getMedicinesByDrug(presc.presentation.drug).subscribe(meds => {
+
+        let expDate = new Date(presc.expirationDate).toJSON();
+
+        let prescDTO = {
+          expirationDate: expDate,
+          quantity: presc.quantity,
+          presentation: presc.presentation.id,
+          medicine: null,
+          posology: presc.posology.id
+        };
+        let visualPrescDTO = {
+          expirationDate: presc.expirationDate,
+          quantity: presc.quantity,
+          presentation: presc.presentation,
+          drug: null,
+          medicine: null,
+          posology: presc.posology
+        };
+
+        // filter drug
+        for(let i = 0; i < this.drugs.length; i++) {
+          let d = this.drugs[i];
+          if(d.name === presc.presentation.drug) {
+            visualPrescDTO.drug = d.name;
+          }
+        }
+
+        // filter medicine
+        for(let i = 0; i < meds.length; i++) {
+          let m = meds[i];
+          if(m.name === presc.medicine) {
+            prescDTO.medicine = m.id;
+            visualPrescDTO.medicine = m.name;
+          }
+        }
+
+        this.prescriptions.push(prescDTO);
+        this.prescriptionsVisual.push(visualPrescDTO);
+
+        console.log(prescDTO);
+        console.log(visualPrescDTO);
+      });;
+    });
+
   }
 
   findReceipt(id: String) {
@@ -126,10 +179,49 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
         posology: input.posology,
       }
 
+      this.addVisualPrescription(prescription);
+      delete prescription.drug;
       this.prescriptions.push(prescription);
 
       this.modalRef.close();
     }
+  }
+
+  addVisualPrescription(prescription) {
+    var visualPresc = {
+      expirationDate: prescription.expirationDate,
+      quantity: prescription.quantity,
+      presentation: null,
+      drug: prescription.drug,
+      medicine: null,
+      posology: null
+    };
+
+    // set presentations
+    for (let i = 0; i < this.presentations.length; i++) {
+      let pres = this.presentations[i];
+      if (pres.id === prescription.presentation) {
+        visualPresc.presentation = pres;
+      }
+    }
+
+    // set medicines
+    for (let i = 0; i < this.medicines.length; i++) {
+      let med = this.medicines[i];
+      if (med.id === prescription.medicine) {
+        visualPresc.medicine = med.name;
+      }
+    }
+
+    // set posologies
+    for (let i = 0; i < this.posologies.length; i++) {
+      let pos = this.posologies[i];
+      if (pos.id === prescription.posology) {
+        visualPresc.posology = pos;
+      }
+    }
+
+    this.prescriptionsVisual.push(visualPresc);
   }
 
   /**
@@ -138,25 +230,9 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
   */
   onSubmit() {
 
-    let prescriptions = new Array();
-    for (let input of (<FormArray>this.receiptForm.controls['prescriptions']).value) {
-
-      let prescription = {
-        expirationDate: input.expiration,
-        quantity: input.quantity,
-        presentation: input.presentation,
-        drug: input.drug,
-        medicine: input.medicine,
-        posology: input.posology
-      }
-
-      prescriptions.push(prescription);
-    }
-
     let newReceipt = {
       patient: (<FormControl>this.receiptForm.controls['patient']).value,
-      prescriptions: prescriptions,
-      creationDate: (new Date()).toString()
+      prescriptions: this.prescriptions
     }
 
     if (this.receiptForm.valid) {
@@ -167,7 +243,7 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
           swal("Medical Receipts succesfully updated!");
         },
         err => {
-          console.log("Error occured");
+          console.log(err);
         }
       );
     }
@@ -223,12 +299,18 @@ export class MedicalReceiptUpdatePageComponent implements OnInit {
  */
   removePrescription(i: number) {
     this.prescriptions.splice(i, 1);
+    this.prescriptionsVisual.splice(i, 1);
   }
 
   // MODAL
 
   // Open default modal
   open(content) {
+
+    this.receiptForm.controls['prescriptions'].reset();
+    this.isDrugSelected = false;
+    this.isPresentationSelected = false;
+
     this.modalRef = this.modalService.open(content);
   }
 

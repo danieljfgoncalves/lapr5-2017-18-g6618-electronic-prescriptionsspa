@@ -132,8 +132,9 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
         posology: input.posology,
       }
 
-      this.prescriptions.push(prescription);
       this.addVisualPrescription(prescription);
+      delete prescription.drug;
+      this.prescriptions.push(prescription);
 
       this.modalRef.close();
     }
@@ -141,19 +142,38 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
 
   addVisualPrescription(prescription) {
     var visualPresc = {
-      expirationDate: prescription.expiration,
+      expirationDate: prescription.expirationDate,
       quantity: prescription.quantity,
-      presentation: prescription.presentation,
+      presentation: null,
       drug: prescription.drug,
       medicine: null,
-      posology: prescription.posology
+      posology: null
     };
+
+    // set presentations
+    for (let i = 0; i < this.presentations.length; i++) {
+      let pres = this.presentations[i];
+      if (pres.id === prescription.presentation) {
+        visualPresc.presentation = pres;
+      }
+    }
+
+    // set medicines
     for (let i = 0; i < this.medicines.length; i++) {
       let med = this.medicines[i];
       if (med.id === prescription.medicine) {
         visualPresc.medicine = med.name;
       }
     }
+
+    // set posologies
+    for (let i = 0; i < this.posologies.length; i++) {
+      let pos = this.posologies[i];
+      if (pos.id === prescription.posology) {
+        visualPresc.posology = pos;
+      }
+    }
+
     this.prescriptionsVisual.push(visualPresc);
   }
 
@@ -185,6 +205,9 @@ export class MedicalReceiptCreatePageComponent implements OnInit {
 
     if (this.receiptForm.valid) {
       console.log(newReceipt);
+      for (let i = 0; i < newReceipt.prescriptions.length; i++) {
+        delete newReceipt.prescriptions[i].drug;
+      }
       this.receiptService.postReceipt(newReceipt).subscribe(
         res => {
           console.log(res);
