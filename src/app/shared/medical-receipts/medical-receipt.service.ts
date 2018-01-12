@@ -64,7 +64,7 @@ export class MedicalReceiptService {
       }
       // presentation
       let presentation: Presentation = new Presentation(
-        null,
+        prescriptionJSON.presentation._id,
         prescriptionJSON.drug,
         null,
         null,
@@ -75,7 +75,7 @@ export class MedicalReceiptService {
       );
       // Posology
       let posology: Posology = new Posology(
-        prescriptionJSON.prescribedPosology.posologyId,
+        prescriptionJSON.prescribedPosology._id,
         prescriptionJSON.prescribedPosology.quantity,
         prescriptionJSON.prescribedPosology.technique,
         prescriptionJSON.prescribedPosology.interval,
@@ -147,7 +147,7 @@ export class MedicalReceiptService {
       for (let drug of json) {
 
         let newDrug: Drug = {
-          id: drug.drugId,
+          id: drug.id,
           name: drug.name
         }
         drugs.push(newDrug);
@@ -237,7 +237,7 @@ export class MedicalReceiptService {
 
           let newPosology: Posology = {
             id: posology.id,
-            quantity: null,
+            quantity: posology.dosage,
             technique: posology.technique,
             interval: posology.interval,
             period: posology.period
