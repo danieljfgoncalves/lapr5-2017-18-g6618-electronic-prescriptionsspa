@@ -27,170 +27,22 @@ export class ChangeLogComponent {
   activeCharts = [];
   scenes = [];
   renderer = null;
-  graphNr = 4;
+  graphNr = 8;
   receipts: MedicalReceipt[] = [];
   medicinesMap  = new Map();
   fillsDataMap = new Map();
   logsDataMap = [];
   logsDataMapReq = new Map();
   apiDataMap = new Map();
-  tokenRequestsDataMap = new Map();
+  apiDataMapPost = new Map();
+  apiDataFails = new Map();
+  apiDataCommonFails = new Map();
 
-  constructor(private receiptService: MedicalReceiptService, private userService: UserService, private authService : AuthService) {
+  constructor(private receiptService: MedicalReceiptService, private userService: UserService, private authService : AuthService) {}
 
-
-  }
-
-  getLoginLogsDataForGraphics(query)
-  {
-
-    return new Promise((resolve, reject) => {
-
-
-        this.userService.getLoginLogs(query).subscribe(data=>{
-        console.log(data);
-          var logs = [];
-          logs.push(data);
-          var logins = 0;
-
-          var signups = 0;
-
-          var logsDataMap = [];
-
-          for(var i = 0; i  < logs[0].length;i++)
-          {
-            var date =  logs[0][i].date.split("T")[0];
-            logsDataMap[date] = [];
-            logsDataMap[date]["logins"] = logs[0][i].logins;
-            logsDataMap[date]["signups"] = logs[0][i].signups;
-
-          }
-
-          resolve(logsDataMap);
-        });
-
-      }
-    )};
-
-
-
-  getLogsDataForGraphics(query)
-{
-
-  return new Promise((resolve, reject) => {
-
-      this.userService.getLogs(query).subscribe(data=>{
-        console.log(data);
-        var logs = [];
-        logs.push(data);
-        var logins = 0;
-
-        var signups = 0;
-        var failedAttempts=0;
-        var unauthorizedRequests=0;
-        var authorizedRequests = 0;
-        var logsDataMap = new Map();
-        logsDataMap.set("Logins",logins);
-        logsDataMap.set("Signups",signups);
-        logsDataMap.set("Failed Logins",failedAttempts);
-        logsDataMap.set("Unauthorized Requests",unauthorizedRequests);
-        logsDataMap.set("Successful Requests",authorizedRequests);
-        for(var i = 0; i  < logs[0].length;i++)
-        {
-          if(logs[0][i].type == 's')
-          {
-            logsDataMap.set("Logins", logsDataMap.get("Logins") + 1 );
-            continue;
-          }
-          if(logs[0][i].type == 'ss')
-          {
-            logsDataMap.set("Signups", logsDataMap.get("Signups") + 1);
-            continue;
-          }
-          if(logs[0][i].type == 'fu')
-          {
-            logsDataMap.set("Failed Logins", logsDataMap.get("Failed Logins") + 1);
-            continue;
-          }
-          if(logs[0][i].type == 'feccft')
-          {
-            logsDataMap.set("Unauthorized Requests", logsDataMap.get("Unauthorized Requests") + 1);
-            continue;
-          }
-          if(logs[0][i].type == 'seccft')
-          {
-            logsDataMap.set("Successful Requests", logsDataMap.get("Successful Requests") + 1);
-            continue;
-          }
-        }
-        resolve(logsDataMap);
-      });
-
-    }
-  )};
-
-  getApplicationsLogsForGraphics()
-  {
-    return new Promise((resolve, reject) => {
-
-      this.userService.getApiRequestLogs('&where={"host":{"$ne":"localhost:3000"}}').subscribe(data =>{
-        console.log(data);
-        var logs = [];
-        logs.push(data);
-        var epresc,pharm,orders,travels = 0;
-        this.apiDataMap.set("ePrescription",epresc);
-        this.apiDataMap.set("Pharmacy",pharm);
-        this.apiDataMap.set("Orders",orders);
-        this.apiDataMap.set("Travels",travels);
-
-        for(var i = 0; i  < logs[0].length;i++) {
-          if(logs[0][i].method == 'POST' && logs[0][i].status == "200" )
-          {
-
-          }
-        }
-      });
-    });
-  }
-
-
-
-
-  getMostUsedMedicinesDataForGraphics()
-  {
-
-    return new Promise((resolve, reject) => {
-    this.receiptService.getReceipts().subscribe(receipts => {
-        this.receipts = receipts;
-        var indexFills = 0;
-        var indexNotFills = 0;
-        this.fillsDataMap.set("Filled",indexFills);
-        this.fillsDataMap.set("Not filled",indexNotFills);
-        for (var i = 0; i < this.receipts.length; i++) {
-          for (var j = 0; j < this.receipts[i].prescriptions.length; j++) {
-            var index = 1;
-            if (this.medicinesMap.has(this.receipts[i].prescriptions[j].medicine)) {
-              index = this.medicinesMap.get(this.receipts[i].prescriptions[j].medicine) + 1;
-              }
-            this.medicinesMap.set(this.receipts[i].prescriptions[j].medicine, index);
-
-            if(this.receipts[i].prescriptions[j].quantity == this.receipts[i].prescriptions[j].fills.length)
-            {
-              indexFills =  this.fillsDataMap.get("Fills") + 1;
-              this.fillsDataMap.set("Filled",indexFills);
-            }
-            else{
-             indexNotFills =  this.fillsDataMap.get("Not filled") + 1;
-             this.fillsDataMap.set("Not filled",indexNotFills);
-            }
-
-            }
-          }
-          resolve();
-        });
-    })
-  }
-
+  /**
+   * Main drawing and scene creation function.
+   */
   init() {
 
   var content = document.createElement( "content" );
@@ -279,7 +131,7 @@ export class ChangeLogComponent {
              fullDataArray[1].push(value["signups"]);
           }
 
-        this.createBarChart("Auth0 Information","Auth - Last 3 days",fullDataArray, i,labels);
+        this.createBarChart("Auth0 Information","Auth - Last 7 days",fullDataArray, i,labels);
         break;
       case 3:
         var fullDataArray = [];
@@ -287,6 +139,22 @@ export class ChangeLogComponent {
         fullDataArray.push(this.logsDataMapReq.get("Unauthorized Requests"));
         var labelsArray = ["Successful Requests","Unauthorized Requests"];
         this.createPieChart("Auth0 Information","Requests - Last 100 requests",fullDataArray, i,labelsArray);
+        break;
+      case 4:
+        var labelsArr = Array.from(this.apiDataMap.keys());
+        this.createPieChart("GET Requests","Successful GETs",Array.from(this.apiDataMap.values()), i,labelsArr);
+        break;
+      case 5:
+        var labelsArr = Array.from(this.apiDataMapPost.keys());
+        this.createPieChart("POST Requests","Sucessful POSTs",Array.from(this.apiDataMapPost.values()), i,labelsArr);
+        break;
+      case 6:
+        var labelsArr = Array.from(this.apiDataFails.keys());
+        this.createPieChart("Request failures","Failures by API",Array.from(this.apiDataFails.values()), i,labelsArr);
+        break;
+      case 7:
+        var labelsArr = Array.from(this.apiDataCommonFails.keys());
+        this.createPieChart("Most common request errors","Errors by status",Array.from(this.apiDataCommonFails.values()), i,labelsArr);
         break;
       }
 
@@ -298,10 +166,22 @@ export class ChangeLogComponent {
 
   }
 
+  /**
+   * Entrypoint for when the view is loaded
+   */
   ngAfterViewInit() {
     if(this.authService.hasRole(Role.ADMIN))
     {
-      this.getLoginLogsDataForGraphics('?from=20180110&to=20180114').then((data)=> {
+      var date = new Date();
+      var day = date.getDate();
+      var daysBefore = date.getDate() - 6;
+      var month = date.getMonth() + 1 ;
+      var strmonth = month < 10?"0"+month:month;
+      var strday = day < 10?"0"+day:day;
+      var strdaybf = daysBefore < 10 ?"0"+daysBefore:daysBefore;
+      var year = date.getFullYear();
+      this.getApplicationsLogsForGraphics().then(()=>{
+      this.getLoginLogsDataForGraphics("?from="+year+""+strmonth+""+strdaybf+"&to="+year+""+strmonth+""+(strday)).then((data)=> {
         let map = [];
         map.push(data);
         this.logsDataMap  = map[0];
@@ -318,10 +198,11 @@ export class ChangeLogComponent {
           });
         });
       });
+      });
     }
     else{
       this.getMostUsedMedicinesDataForGraphics().then(() => {
-        this.graphNr -=2;
+        this.graphNr -=6;
         this.init();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
@@ -384,6 +265,8 @@ export class ChangeLogComponent {
     }
   }
 
+
+
   /**
    * Creates a Pie chart with the given data, and draws it in a canvas.
    * @param dataInputs the data for the chart
@@ -423,10 +306,6 @@ export class ChangeLogComponent {
     this.activeCharts.push(Chart1);
 
    }
-
-
-
-
 
 
   /**
@@ -492,16 +371,6 @@ export class ChangeLogComponent {
 
     }
 
-
-
-    /*
-     animation.onstop=function() {
-     if (animation.chart != Chart3)
-     if (fadeAnimation.active)
-     fadeAnimation.animate(animation.chart);
-     }
-    this.activeCharts.push(Chart1);
-  }
   /**
    * Creates a Bar chart with the given data, and draws it in a canvas.
    * @param dataInputs the data for the chart
@@ -550,7 +419,13 @@ export class ChangeLogComponent {
 
     this.activeCharts.push(Chart1);
   }
-   resize(chart){
+
+
+  /**
+   * Makes charts responsive
+   * @param chart the chart to resize
+   */
+  resize(chart){
   if (chart!=null){
     var startWidth=600;
     var startHeight=400;
@@ -601,4 +476,220 @@ export class ChangeLogComponent {
     }
   }
 }
+
+  getLoginLogsDataForGraphics(query)
+  {
+
+    return new Promise((resolve, reject) => {
+
+
+        this.userService.getLoginLogs(query).subscribe(data=>{
+          console.log(data);
+          var logs = [];
+          logs.push(data);
+          var logins = 0;
+
+          var signups = 0;
+
+          var logsDataMap = [];
+
+          for(var i = 0; i  < logs[0].length;i++)
+          {
+            var date =  logs[0][i].date.split("T")[0];
+            logsDataMap[date] = [];
+            logsDataMap[date]["logins"] = logs[0][i].logins;
+            logsDataMap[date]["signups"] = logs[0][i].signups;
+
+          }
+
+          resolve(logsDataMap);
+        });
+
+      }
+    )};
+
+
+  /**
+   * Gets a map with log data to use in graphics.
+   * @param query the auth0 query
+   * @returns {Promise<T>}
+   */
+  getLogsDataForGraphics(query)
+  {
+
+    return new Promise((resolve, reject) => {
+
+        this.userService.getLogs(query).subscribe(data=>{
+          console.log(data);
+          var logs = [];
+          logs.push(data);
+          var logins = 0;
+
+          var signups = 0;
+          var failedAttempts=0;
+          var unauthorizedRequests=0;
+          var authorizedRequests = 0;
+          var logsDataMap = new Map();
+          logsDataMap.set("Failed Logins",failedAttempts);
+          logsDataMap.set("Unauthorized Requests",unauthorizedRequests);
+          logsDataMap.set("Successful Requests",authorizedRequests);
+          for(var i = 0; i  < logs[0].length;i++)
+          {
+
+            if(logs[0][i].type == 'fu')
+            {
+              logsDataMap.set("Failed Logins", logsDataMap.get("Failed Logins") + 1);
+              continue;
+            }
+            if(logs[0][i].type == 'feccft')
+            {
+              logsDataMap.set("Unauthorized Requests", logsDataMap.get("Unauthorized Requests") + 1);
+              continue;
+            }
+            if(logs[0][i].type == 'seccft')
+            {
+              logsDataMap.set("Successful Requests", logsDataMap.get("Successful Requests") + 1);
+              continue;
+            }
+          }
+          resolve(logsDataMap);
+        });
+
+      }
+    )};
+
+  /**
+   * Gets a map with log data to use in graphics.
+   * @returns {Promise<T>}
+   */
+  getApplicationsLogsForGraphics()
+  {
+    return new Promise((resolve, reject) => {
+
+      this.userService.getApiRequestLogs('limit=20000&where={"$and":[{"host":{"$ne":"localhost:3000"}},{"host":{"$ne":"localhost:3100"}},{"host":{"$ne":"localhost:4200"}},{"host":{"$ne":"localhost:1337"}}]}').subscribe(data =>{
+        console.log(data);
+        var logs = [];
+        logs.push(data);
+
+        this.apiDataMap.set("ePrescription",0);
+        this.apiDataMap.set("Pharmacy",0);
+        this.apiDataMap.set("Orders",0);
+        this.apiDataMap.set("Travels",0);
+        this.apiDataMapPost.set("ePrescription",0);
+        this.apiDataMapPost.set("Pharmacy",0);
+        this.apiDataMapPost.set("Orders",0);
+        this.apiDataMapPost.set("Travels",0);
+        this.apiDataFails.set("ePrescription",0);
+        this.apiDataFails.set("Pharmacy",0);
+        this.apiDataFails.set("Orders",0);
+        this.apiDataFails.set("Travels",0);
+        for(var i = 0; i  < logs[0].length;i++) {
+          if(logs[0][i].method == 'GET' && logs[0][i].status == "200" )
+          {
+            if(logs[0][i].host.indexOf("receipts")!= -1)
+            {
+              this.apiDataMap.set("ePrescription",  this.apiDataMap.get("ePrescription") + 1);
+            }
+            if(logs[0][i].host.indexOf("orders")!= -1)
+            {
+              this.apiDataMap.set("Orders",  this.apiDataMap.get("Orders") + 1);
+            }
+            if(logs[0][i].host.indexOf("pharmacy")!= -1)
+            {
+              this.apiDataMap.set("Pharmacy",  this.apiDataMap.get("Pharmacy") + 1);
+            }
+            if(logs[0][i].host.indexOf("amazon")!= -1)
+            {
+              this.apiDataMap.set("Travels",  this.apiDataMap.get("Travels") + 1);
+            }
+          }
+          if(logs[0][i].method == 'POST' && logs[0][i].status == "200" )
+          {
+            if(logs[0][i].host.indexOf("receipts")!= -1)
+            {
+              this.apiDataMapPost.set("ePrescription",  this.apiDataMapPost.get("ePrescription") + 1);
+            }
+            if(logs[0][i].host.indexOf("orders")!= -1)
+            {
+              this.apiDataMapPost.set("Orders",  this.apiDataMapPost.get("Orders") + 1);
+            }
+            if(logs[0][i].host.indexOf("pharmacy")!= -1)
+            {
+              this.apiDataMapPost.set("Pharmacy",  this.apiDataMapPost.get("Pharmacy") + 1);
+            }
+            if(logs[0][i].host.indexOf("amazon")!= -1)
+            {
+              this.apiDataMapPost.set("Travels",  this.apiDataMapPost.get("Travels") + 1);
+            }
+          }
+          if( logs[0][i].status != "200")
+          {
+            if(logs[0][i].host.indexOf("receipts")!= -1)
+            {
+              this.apiDataFails.set("ePrescription",   this.apiDataFails.get("ePrescription") + 1);
+            }
+            if(logs[0][i].host.indexOf("orders")!= -1)
+            {
+              this.apiDataFails.set("Orders",  this.apiDataFails.get("Orders") + 1);
+            }
+            if(logs[0][i].host.indexOf("pharmacy")!= -1)
+            {
+              this.apiDataFails.set("Pharmacy",   this.apiDataFails.get("Pharmacy") + 1);
+            }
+            if(logs[0][i].host.indexOf("amazon")!= -1)
+            {
+              this.apiDataFails.set("Travels",   this.apiDataFails.get("Travels") + 1);
+            }
+            if(!this.apiDataCommonFails.has(logs[0][i].status))
+            {
+              this.apiDataCommonFails.set(logs[0][i].status,0);
+            }
+            this.apiDataCommonFails.set(logs[0][i].status,this.apiDataCommonFails.get(logs[0][i].status)+1);
+          }
+        }
+        resolve();
+      });
+    });
+  }
+
+
+  /**
+   * Gets a map with medicines data to use in graphics.
+   * @returns {Promise<T>}
+   */
+  getMostUsedMedicinesDataForGraphics()
+  {
+
+    return new Promise((resolve, reject) => {
+      this.receiptService.getReceipts().subscribe(receipts => {
+        this.receipts = receipts;
+        var indexFills = 0;
+        var indexNotFills = 0;
+        this.fillsDataMap.set("Filled",indexFills);
+        this.fillsDataMap.set("Not filled",indexNotFills);
+        for (var i = 0; i < this.receipts.length; i++) {
+          for (var j = 0; j < this.receipts[i].prescriptions.length; j++) {
+            var index = 1;
+            if (this.medicinesMap.has(this.receipts[i].prescriptions[j].medicine)) {
+              index = this.medicinesMap.get(this.receipts[i].prescriptions[j].medicine) + 1;
+            }
+            this.medicinesMap.set(this.receipts[i].prescriptions[j].medicine, index);
+
+            if(this.receipts[i].prescriptions[j].quantity == this.receipts[i].prescriptions[j].fills.length)
+            {
+              indexFills =  this.fillsDataMap.get("Fills") + 1;
+              this.fillsDataMap.set("Filled",indexFills);
+            }
+            else{
+              indexNotFills =  this.fillsDataMap.get("Not filled") + 1;
+              this.fillsDataMap.set("Not filled",indexNotFills);
+            }
+
+          }
+        }
+        resolve();
+      });
+    })
+  }
+
 }
