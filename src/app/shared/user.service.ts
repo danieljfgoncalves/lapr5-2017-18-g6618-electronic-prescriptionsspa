@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from 'app/model/user';
+import { Log } from 'app/model/log';
 import { Observable } from 'rxjs';
 import { environment } from 'environments/environment';
 import { Role } from 'app/model/role';
 import { AuthService } from 'app/shared/auth/auth.service';
+import * as $ from 'jquery';
+
+
 
 @Injectable()
 export class UserService {
@@ -35,7 +39,7 @@ export class UserService {
       for(var i=0; i< userJSON.roles.length; i++) {
         roles[i] = userJSON.roles[i];
       }
-      
+
       return new User(
         userJSON.userID,
         userJSON.username,
@@ -43,7 +47,7 @@ export class UserService {
         userJSON.mobile,
         roles
       );
-      
+
     });
   }
 
@@ -75,6 +79,58 @@ export class UserService {
         }
         return patients;
       });
+  }
+
+  getLogs(query) : Observable<Object>{
+
+      const url = environment.receipts_frontend.url + "/api/logs/auth" + query;
+      let headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + this.authService.getToken(),
+        'client_id': environment.receipts_frontend.client_id,
+        'client_secret': environment.receipts_frontend.client_secret,
+      });
+      let httpOptions = {
+        headers: headers
+      };
+
+      return this.http.get(url,httpOptions);
+
+    }
+
+  getApiRequestLogs(query) : Observable<Object>{
+
+    //?limit=2&where={"method":"POST","status":"500"}';
+    const url = environment.receipts_frontend.url + '/api/logs/http/requests?' + query;
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.authService.getToken(),
+      'client_id': environment.receipts_frontend.client_id,
+      'client_secret': environment.receipts_frontend.client_secret,
+    });
+    let httpOptions = {
+      headers: headers
+    };
+
+    return this.http.get(url,httpOptions);
+
+  }
+
+  getLoginLogs(query) : Observable<Object>{
+
+    const url = environment.receipts_frontend.url + "/api/logs/auth/login" + query;
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.authService.getToken(),
+      'client_id': environment.receipts_frontend.client_id,
+      'client_secret': environment.receipts_frontend.client_secret,
+    });
+    let httpOptions = {
+      headers: headers
+    };
+
+    return this.http.get(url,httpOptions);
+
   }
 
 }

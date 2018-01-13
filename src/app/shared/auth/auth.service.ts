@@ -172,6 +172,8 @@ export class AuthService {
     });
   }
 
+
+
   logout() {
     this.token = null;
     this.userInfo = null;
@@ -206,7 +208,7 @@ export class AuthService {
   }
 
   isAuthenticated() {
-    // here you can check if user is authenticated or not through his token 
+    // here you can check if user is authenticated or not through his token
     return tokenNotExpired();
   }
 
