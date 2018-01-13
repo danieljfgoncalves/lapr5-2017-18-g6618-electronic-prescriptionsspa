@@ -31,7 +31,7 @@ export class ChangeLogComponent {
   receipts: MedicalReceipt[] = [];
   medicinesMap  = new Map();
   fillsDataMap = new Map();
-  logsDataMap = new Map();
+  logsDataMap = [];
   logsDataMapReq = new Map();
   apiDataMap = new Map();
   tokenRequestsDataMap = new Map();
@@ -41,61 +41,93 @@ export class ChangeLogComponent {
 
   }
 
-  getLogsDataForGraphics(query)
+  getLoginLogsDataForGraphics(query)
   {
 
     return new Promise((resolve, reject) => {
-      this. getApplicationsLogsForGraphics();
 
-        this.userService.getLogs(query).subscribe(data=>{
-          console.log(data);
-           var logs = [];
-           logs.push(data);
-           var logins = 0;
 
-           var signups = 0;
-           var failedAttempts=0;
-           var unauthorizedRequests=0;
-           var authorizedRequests = 0;
-           var logsDataMap = new Map();
-           logsDataMap.set("Logins",logins);
-           logsDataMap.set("Signups",signups);
-           logsDataMap.set("Failed Logins",failedAttempts);
-           logsDataMap.set("Unauthorized Requests",unauthorizedRequests);
-           logsDataMap.set("Successful Requests",authorizedRequests);
-           for(var i = 0; i  < logs[0].length;i++)
-           {
-             if(logs[0][i].type == 's')
-             {
-                logsDataMap.set("Logins", logsDataMap.get("Logins") + 1 );
-               continue;
-             }
-             if(logs[0][i].type == 'ss')
-             {
-                logsDataMap.set("Signups", logsDataMap.get("Signups") + 1);
-               continue;
-             }
-             if(logs[0][i].type == 'fu')
-             {
-                logsDataMap.set("Failed Logins", logsDataMap.get("Failed Logins") + 1);
-               continue;
-             }
-             if(logs[0][i].type == 'feccft')
-             {
-              logsDataMap.set("Unauthorized Requests", logsDataMap.get("Unauthorized Requests") + 1);
-               continue;
-             }
-             if(logs[0][i].type == 'seccft')
-             {
-               logsDataMap.set("Successful Requests", logsDataMap.get("Successful Requests") + 1);
-               continue;
-             }
-           }
-           resolve(logsDataMap);
+        this.userService.getLoginLogs(query).subscribe(data=>{
+        console.log(data);
+          var logs = [];
+          logs.push(data);
+          var logins = 0;
+
+          var signups = 0;
+
+          var logsDataMap = [];
+
+          for(var i = 0; i  < logs[0].length;i++)
+          {
+            var date =  logs[0][i].date.split("T")[0];
+            logsDataMap[date] = [];
+            logsDataMap[date]["logins"] = logs[0][i].logins;
+            logsDataMap[date]["signups"] = logs[0][i].signups;
+
+          }
+
+          resolve(logsDataMap);
         });
 
-    }
+      }
     )};
+
+
+
+  getLogsDataForGraphics(query)
+{
+
+  return new Promise((resolve, reject) => {
+
+      this.userService.getLogs(query).subscribe(data=>{
+        console.log(data);
+        var logs = [];
+        logs.push(data);
+        var logins = 0;
+
+        var signups = 0;
+        var failedAttempts=0;
+        var unauthorizedRequests=0;
+        var authorizedRequests = 0;
+        var logsDataMap = new Map();
+        logsDataMap.set("Logins",logins);
+        logsDataMap.set("Signups",signups);
+        logsDataMap.set("Failed Logins",failedAttempts);
+        logsDataMap.set("Unauthorized Requests",unauthorizedRequests);
+        logsDataMap.set("Successful Requests",authorizedRequests);
+        for(var i = 0; i  < logs[0].length;i++)
+        {
+          if(logs[0][i].type == 's')
+          {
+            logsDataMap.set("Logins", logsDataMap.get("Logins") + 1 );
+            continue;
+          }
+          if(logs[0][i].type == 'ss')
+          {
+            logsDataMap.set("Signups", logsDataMap.get("Signups") + 1);
+            continue;
+          }
+          if(logs[0][i].type == 'fu')
+          {
+            logsDataMap.set("Failed Logins", logsDataMap.get("Failed Logins") + 1);
+            continue;
+          }
+          if(logs[0][i].type == 'feccft')
+          {
+            logsDataMap.set("Unauthorized Requests", logsDataMap.get("Unauthorized Requests") + 1);
+            continue;
+          }
+          if(logs[0][i].type == 'seccft')
+          {
+            logsDataMap.set("Successful Requests", logsDataMap.get("Successful Requests") + 1);
+            continue;
+          }
+        }
+        resolve(logsDataMap);
+      });
+
+    }
+  )};
 
   getApplicationsLogsForGraphics()
   {
@@ -120,6 +152,9 @@ export class ChangeLogComponent {
       });
     });
   }
+
+
+
 
   getMostUsedMedicinesDataForGraphics()
   {
@@ -231,13 +266,20 @@ export class ChangeLogComponent {
           var labelsArray = ["Total prescriptions","Filled","Not filled"];
           this.createHBarChart("Prescription information","Filled to not filled prescription ratio",fullDataArray, i,labelsArray);
           break;
-      case 2:
+        case 2:
         var fullDataArray = [];
-        fullDataArray.push(this.logsDataMap.get("Signups"));
-        fullDataArray.push(this.logsDataMap.get("Logins"));
-        fullDataArray.push(this.logsDataMap.get("Failed Logins"));
-        var labelsArray = ["Signups","Logins", "Failed Logins"];
-        this.createBarChart("Auth0 Information","Authentication and requests",fullDataArray, i,labelsArray);
+        fullDataArray[0] = [];
+        fullDataArray[1] = [];
+        let labels = [];
+          for (var key in this.logsDataMap) {
+            let value = this.logsDataMap[key];
+             labels.push(key);
+
+             fullDataArray[0].push(value["logins"]);
+             fullDataArray[1].push(value["signups"]);
+          }
+
+        this.createBarChart("Auth0 Information","Auth - Last 3 days",fullDataArray, i,labels);
         break;
       case 3:
         var fullDataArray = [];
@@ -259,7 +301,7 @@ export class ChangeLogComponent {
   ngAfterViewInit() {
     if(this.authService.hasRole(Role.ADMIN))
     {
-      this.getLogsDataForGraphics('?per_page=100&q=type%3As%20type%3Afu%20type%3Ass').then((data)=> {
+      this.getLoginLogsDataForGraphics('?from=20180110&to=20180114').then((data)=> {
         let map = [];
         map.push(data);
         this.logsDataMap  = map[0];
@@ -279,7 +321,7 @@ export class ChangeLogComponent {
     }
     else{
       this.getMostUsedMedicinesDataForGraphics().then(() => {
-        this.graphNr -=1;
+        this.graphNr -=2;
         this.init();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
@@ -350,10 +392,10 @@ export class ChangeLogComponent {
   createPieChart(title,footer,dataInputs,canvasIndex,labelsArr)
   {
     var canvas = document.getElementById("canvas"+canvasIndex);
-    canvas.addEventListener('dblclick', function(evt) {
+    canvas.addEventListener('mouseenter', function(evt) {
       canvas.style.transform = "scale(1.05)";
     }, false);
-    canvas.addEventListener('click', function(evt) {
+    canvas.addEventListener('dblclick', function(evt) {
       canvas.style.transform = "scale(0.9)";
     }, false);
     // Create Chart
@@ -414,10 +456,10 @@ export class ChangeLogComponent {
    createBarChart(title,footer,dataInputs,canvasIndex,labels) {
 
       var canvas = document.getElementById("canvas"+canvasIndex);
-      canvas.addEventListener('dblclick', function(evt) {
+      canvas.addEventListener('mouseenter', function(evt) {
         canvas.style.transform = "scale(1.05)";
       }, false);
-      canvas.addEventListener('click', function(evt) {
+      canvas.addEventListener('dblclick', function(evt) {
         canvas.style.transform = "scale(0.9)";
       }, false);
       var Chart1 = new Tee.Tee.Chart("canvas" + canvasIndex);
@@ -425,11 +467,19 @@ export class ChangeLogComponent {
       Chart1.footer.text = footer;
       Chart1.panel.format.fill = "blue";
       Chart1.panel.transparent = true;
-      // Add Bar series to Chart:
-      var bars = new Tee.Tee.Bar(dataInputs);
 
+      // Add Bar series to Chart:
+      var bars = new Tee.Tee.Bar(dataInputs[0]);
+      bars.marks.visible = false;
+
+      var bars2 = new Tee.Tee.Bar(dataInputs[1]);
+      bars2.marks.visible = false;
+      bars2.title = "Signups";
+      bars.title = "Logins";
       bars.data.labels = labels;
+      bars2.data.labels = labels;
       //Chart1.addSeries(new Tee.Line()).addRandom(10);
+      Chart1.addSeries(bars2);
       Chart1.addSeries(bars);
       Chart1.panel.format.fill = "blue";
       var tip = new Tee.Tee.ToolTip(Chart1);
@@ -438,22 +488,10 @@ export class ChangeLogComponent {
 
       Chart1.tools.add(tip);
 
-      var b1 = new Tee.Tee.Annotation(Chart1, "Change Axis", 465, 105);
-
-      b1.cursor = "pointer";
-
-      b1.onclick = function (button, x, y) {
-        Chart1.getSeries(0).vertAxis = (Chart1.getSeries(0).vertAxis) == "left" ? "right" : "left";
-
-
-      }
-
-      Chart1.tools.add(b1);
-
-
       this.activeCharts.push(Chart1);
 
     }
+
 
 
     /*
@@ -473,10 +511,10 @@ export class ChangeLogComponent {
   {
 
     var canvas = document.getElementById("canvas"+canvasIndex);
-    canvas.addEventListener('dblclick', function(evt) {
+    canvas.addEventListener('mouseenter', function(evt) {
       canvas.style.transform = "scale(1.05)";
     }, false);
-    canvas.addEventListener('click', function(evt) {
+    canvas.addEventListener('dblclick', function(evt) {
       canvas.style.transform = "scale(0.9)";
     }, false);
     var Chart1 = new Tee.Tee.Chart("canvas"+canvasIndex);

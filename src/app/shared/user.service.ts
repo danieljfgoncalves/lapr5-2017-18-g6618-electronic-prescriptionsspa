@@ -116,7 +116,21 @@ export class UserService {
 
   }
 
+  getLoginLogs(query) : Observable<Object>{
 
+    const url = environment.receipts_frontend.url + "/api/logs/auth/login" + query;
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.authService.getToken(),
+      'client_id': environment.receipts_frontend.client_id,
+      'client_secret': environment.receipts_frontend.client_secret,
+    });
+    let httpOptions = {
+      headers: headers
+    };
 
+    return this.http.get(url,httpOptions);
+
+  }
 
 }
