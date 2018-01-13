@@ -603,7 +603,7 @@ export class ChangeLogComponent {
               this.apiDataMap.set("Travels",  this.apiDataMap.get("Travels") + 1);
             }
           }
-          if(logs[0][i].method == 'POST' && logs[0][i].status == "200" )
+          if(logs[0][i].method == 'POST' && (logs[0][i].status == "201" || logs[0][i].status == "200"))
           {
             if(logs[0][i].host.indexOf("receipts")!= -1)
             {
@@ -622,7 +622,7 @@ export class ChangeLogComponent {
               this.apiDataMapPost.set("Travels",  this.apiDataMapPost.get("Travels") + 1);
             }
           }
-          if( logs[0][i].status != "200")
+          if( logs[0][i].status >= "400")
           {
             if(logs[0][i].host.indexOf("receipts")!= -1)
             {
