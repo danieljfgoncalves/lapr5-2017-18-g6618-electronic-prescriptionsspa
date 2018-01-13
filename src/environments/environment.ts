@@ -10,7 +10,7 @@ export const environment = {
   },
   receipts_frontend: {
     url: "https://lapr5-g6618-receipts-management.azurewebsites.net",
-    client_id: 'JlBREWOiSAE87o0MZjymMkH8z5wPX7QW',
-    client_secret: 'xVeQAFK7NeZZXSJ7ZQeA2H6ouILGkGIyxBNKVPo-8W5tzDC-0o_vIwF96veW9V7b'
+    client_id: 'x2QUE1LixaXfsjsip8TZvWJacg61qcvy',
+    client_secret: 'kENcRaE-32TGuSeYfb9sEsDHeDOc2KS_ymJ5Af8Br7smBsk4p6LWaSnQMmaLIlXd'
   }
 };

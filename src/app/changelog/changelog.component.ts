@@ -1,9 +1,14 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import * as THREE from 'three';
 import * as Tee from 'assets/WebGL/Dashboard/teechart.js';
+
+
 import { MedicalReceiptService } from '../shared/medical-receipts/medical-receipt.service'
 import { MedicalReceipt } from '../model/medical-receipt'
 import {recordMapEntry} from "@angular/compiler-cli/src/metadata/evaluator";
+import {UserService} from "../shared/user.service";
+import {AuthService} from "../shared/auth/auth.service";
+import {Role} from "../model/role";
 
 
 @Component({
@@ -22,18 +27,103 @@ export class ChangeLogComponent {
   activeCharts = [];
   scenes = [];
   renderer = null;
-  graphNr = 2;
+  graphNr = 4;
   receipts: MedicalReceipt[] = [];
   medicinesMap  = new Map();
   fillsDataMap = new Map();
+  logsDataMap = new Map();
+  logsDataMapReq = new Map();
+  apiDataMap = new Map();
+  tokenRequestsDataMap = new Map();
 
-  constructor(private receiptService: MedicalReceiptService) {
+  constructor(private receiptService: MedicalReceiptService, private userService: UserService, private authService : AuthService) {
 
 
   }
 
+  getLogsDataForGraphics(query)
+  {
+
+    return new Promise((resolve, reject) => {
+      this. getApplicationsLogsForGraphics();
+
+        this.userService.getLogs(query).subscribe(data=>{
+          console.log(data);
+           var logs = [];
+           logs.push(data);
+           var logins = 0;
+
+           var signups = 0;
+           var failedAttempts=0;
+           var unauthorizedRequests=0;
+           var authorizedRequests = 0;
+           var logsDataMap = new Map();
+           logsDataMap.set("Logins",logins);
+           logsDataMap.set("Signups",signups);
+           logsDataMap.set("Failed Logins",failedAttempts);
+           logsDataMap.set("Unauthorized Requests",unauthorizedRequests);
+           logsDataMap.set("Successful Requests",authorizedRequests);
+           for(var i = 0; i  < logs[0].length;i++)
+           {
+             if(logs[0][i].type == 's')
+             {
+                logsDataMap.set("Logins", logsDataMap.get("Logins") + 1 );
+               continue;
+             }
+             if(logs[0][i].type == 'ss')
+             {
+                logsDataMap.set("Signups", logsDataMap.get("Signups") + 1);
+               continue;
+             }
+             if(logs[0][i].type == 'fu')
+             {
+                logsDataMap.set("Failed Logins", logsDataMap.get("Failed Logins") + 1);
+               continue;
+             }
+             if(logs[0][i].type == 'feccft')
+             {
+              logsDataMap.set("Unauthorized Requests", logsDataMap.get("Unauthorized Requests") + 1);
+               continue;
+             }
+             if(logs[0][i].type == 'seccft')
+             {
+               logsDataMap.set("Successful Requests", logsDataMap.get("Successful Requests") + 1);
+               continue;
+             }
+           }
+           resolve(logsDataMap);
+        });
+
+    }
+    )};
+
+  getApplicationsLogsForGraphics()
+  {
+    return new Promise((resolve, reject) => {
+
+      this.userService.getApiRequestLogs('&where={"host":{"$ne":"localhost:3000"}}').subscribe(data =>{
+        console.log(data);
+        var logs = [];
+        logs.push(data);
+        var epresc,pharm,orders,travels = 0;
+        this.apiDataMap.set("ePrescription",epresc);
+        this.apiDataMap.set("Pharmacy",pharm);
+        this.apiDataMap.set("Orders",orders);
+        this.apiDataMap.set("Travels",travels);
+
+        for(var i = 0; i  < logs[0].length;i++) {
+          if(logs[0][i].method == 'POST' && logs[0][i].status == "200" )
+          {
+
+          }
+        }
+      });
+    });
+  }
+
   getMostUsedMedicinesDataForGraphics()
   {
+
     return new Promise((resolve, reject) => {
     this.receiptService.getReceipts().subscribe(receipts => {
         this.receipts = receipts;
@@ -71,6 +161,7 @@ export class ChangeLogComponent {
   var content = document.createElement( "content" );
 
 
+
   for ( var i =  0; i < this.graphNr  ; i ++ ) {
 
     var scene = new THREE.Scene();
@@ -79,27 +170,31 @@ export class ChangeLogComponent {
 
     var element = document.createElement( "div" );
     element.style.position = "relative";
-    element.className =  "list-item";
+    element.className =  "container-fluid";
     element.style.display = "inline-block";
-    element.style.margin = "10em";
-    element.style.padding = "10em";
+    element.style.margin = "8em";
+    element.style.padding = "0em";
+    element.style.top = "-30";
+    element.style.left ="-10";
 
     var canvas = document.createElement("canvas");
 
-    canvas.style.position = "relative";
+    canvas.style.position = "absolute";
 
 
     canvas.style.boxShadow = "3px 3px 4px 1px black";
     canvas.id = 'canvas'+i;
 
-    canvas.width = 400;
-    canvas.height = 500;
+    canvas.width =   window.innerWidth  * 500 / 1600 ;
+    canvas.height =  window.innerHeight  * 500 / 900;
+    canvas.style.transform = "scale(0.9)";
+    canvas.style.transition = "all 0.5s";
 
     element.appendChild(canvas);
     // Look up the element that represents the area
     // we want to render the scene
-    element.style.width =  '1px';
-    element.style.height =  '1px';
+    element.style.width =  '500px';
+    element.style.height =  '500px';
     scene.userData.element = element;
 
 
@@ -118,7 +213,7 @@ export class ChangeLogComponent {
     this.scenes.push( scene );
 
   }
-
+    //this.rendererContainer.nativeElement.getElementsByTagName("body")[0].style.width = "1500px";
     this.rendererContainer.nativeElement.getElementsByTagName("body")[0].appendChild(content);
 
     for(var i = 0 ; i< this.graphNr; i++) {
@@ -134,8 +229,23 @@ export class ChangeLogComponent {
           fullDataArray.push(this.fillsDataMap.get("Filled"));
           fullDataArray.push(this.fillsDataMap.get("Not filled"));
           var labelsArray = ["Total prescriptions","Filled","Not filled"];
-          this.createBarChart("Prescription information","Filled to not filled prescription ratio",fullDataArray, i,labelsArray);
+          this.createHBarChart("Prescription information","Filled to not filled prescription ratio",fullDataArray, i,labelsArray);
           break;
+      case 2:
+        var fullDataArray = [];
+        fullDataArray.push(this.logsDataMap.get("Signups"));
+        fullDataArray.push(this.logsDataMap.get("Logins"));
+        fullDataArray.push(this.logsDataMap.get("Failed Logins"));
+        var labelsArray = ["Signups","Logins", "Failed Logins"];
+        this.createBarChart("Auth0 Information","Authentication and requests",fullDataArray, i,labelsArray);
+        break;
+      case 3:
+        var fullDataArray = [];
+        fullDataArray.push(this.logsDataMapReq.get("Successful Requests"));
+        fullDataArray.push(this.logsDataMapReq.get("Unauthorized Requests"));
+        var labelsArray = ["Successful Requests","Unauthorized Requests"];
+        this.createPieChart("Auth0 Information","Requests - Last 100 requests",fullDataArray, i,labelsArray);
+        break;
       }
 
     }
@@ -147,12 +257,35 @@ export class ChangeLogComponent {
   }
 
   ngAfterViewInit() {
-    this.getMostUsedMedicinesDataForGraphics().then(() => {
-      this.init();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
-      this.animate();
-    });
+    if(this.authService.hasRole(Role.ADMIN))
+    {
+      this.getLogsDataForGraphics('?per_page=100&q=type%3As%20type%3Afu%20type%3Ass').then((data)=> {
+        let map = [];
+        map.push(data);
+        this.logsDataMap  = map[0];
+        this.getLogsDataForGraphics('?per_page=100&q=type%3Afeccft%20type%3Aseccft').then((dataReq) => {
+          let map = [];
+          map.push(dataReq);
+          this.logsDataMapReq  = map[0];
+          console.log(this.logsDataMapReq);
+          this.getMostUsedMedicinesDataForGraphics().then(() => {
+            this.init();
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
+            this.animate();
+          });
+        });
+      });
+    }
+    else{
+      this.getMostUsedMedicinesDataForGraphics().then(() => {
+        this.graphNr -=1;
+        this.init();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
+        this.animate();
+      });
+    }
   }
 
   animate() {
@@ -165,8 +298,9 @@ export class ChangeLogComponent {
     this.renderer.setScissorTest( true );
 
     for (var i = 0; i < this.activeCharts.length; i++) {
-      this.activeCharts[i].draw();
 
+      this.activeCharts[i].draw();
+      this.resize(this.activeCharts[i]);
     }
     for(var i = 0 ; i < this.scenes.length;i++)
     {
@@ -215,24 +349,45 @@ export class ChangeLogComponent {
    */
   createPieChart(title,footer,dataInputs,canvasIndex,labelsArr)
   {
+    var canvas = document.getElementById("canvas"+canvasIndex);
+    canvas.addEventListener('dblclick', function(evt) {
+      canvas.style.transform = "scale(1.05)";
+    }, false);
+    canvas.addEventListener('click', function(evt) {
+      canvas.style.transform = "scale(0.9)";
+    }, false);
     // Create Chart
     var Chart1 = new Tee.Tee.Chart("canvas"+canvasIndex);
     Chart1.title.text = title;
     Chart1.footer.text = footer;
-
+    Chart1.panel.format.fill = "blue";
+    Chart1.panel.transparent = true;
     // Add Bar series to Chart
     var pieData = new Tee.Tee.Pie( dataInputs );
     pieData.data.labels = labelsArr;
     Chart1.addSeries(pieData);
     Chart1.panel.format.fill = "blue";
+    var  tip=new Tee.Tee.ToolTip(Chart1);
 
+    tip.format.font.style="16px Tahoma";
+    var t=new Tee.Tee.CursorTool(Chart1);
+
+    t.format.stroke.size=2;
+
+    t.format.stroke.fill="#BB0000";
+
+    Chart1.tools.add(t);
+    Chart1.tools.add(tip);
     this.activeCharts.push(Chart1);
 
    }
 
 
 
-    /**
+
+
+
+  /**
      * Creates a Line chart with the given data, and draws it in a canvas.
      * @param dataInputs the data for the chart
      * @param canvasIndex the index of the canvas it will be drawn
@@ -256,20 +411,156 @@ export class ChangeLogComponent {
      * @param dataInputs the data for the chart
      * @param canvasIndex the index of the canvas it will be drawn
      */
-   createBarChart(title,footer,dataInputs,canvasIndex,labels)
+   createBarChart(title,footer,dataInputs,canvasIndex,labels) {
+
+      var canvas = document.getElementById("canvas"+canvasIndex);
+      canvas.addEventListener('dblclick', function(evt) {
+        canvas.style.transform = "scale(1.05)";
+      }, false);
+      canvas.addEventListener('click', function(evt) {
+        canvas.style.transform = "scale(0.9)";
+      }, false);
+      var Chart1 = new Tee.Tee.Chart("canvas" + canvasIndex);
+      Chart1.title.text = title;
+      Chart1.footer.text = footer;
+      Chart1.panel.format.fill = "blue";
+      Chart1.panel.transparent = true;
+      // Add Bar series to Chart:
+      var bars = new Tee.Tee.Bar(dataInputs);
+
+      bars.data.labels = labels;
+      //Chart1.addSeries(new Tee.Line()).addRandom(10);
+      Chart1.addSeries(bars);
+      Chart1.panel.format.fill = "blue";
+      var tip = new Tee.Tee.ToolTip(Chart1);
+
+      tip.format.font.style = "16px Tahoma";
+
+      Chart1.tools.add(tip);
+
+      var b1 = new Tee.Tee.Annotation(Chart1, "Change Axis", 465, 105);
+
+      b1.cursor = "pointer";
+
+      b1.onclick = function (button, x, y) {
+        Chart1.getSeries(0).vertAxis = (Chart1.getSeries(0).vertAxis) == "left" ? "right" : "left";
+
+
+      }
+
+      Chart1.tools.add(b1);
+
+
+      this.activeCharts.push(Chart1);
+
+    }
+
+
+    /*
+     animation.onstop=function() {
+     if (animation.chart != Chart3)
+     if (fadeAnimation.active)
+     fadeAnimation.animate(animation.chart);
+     }
+    this.activeCharts.push(Chart1);
+  }
+  /**
+   * Creates a Bar chart with the given data, and draws it in a canvas.
+   * @param dataInputs the data for the chart
+   * @param canvasIndex the index of the canvas it will be drawn
+   */
+  createHBarChart(title,footer,dataInputs,canvasIndex,labels)
   {
 
+    var canvas = document.getElementById("canvas"+canvasIndex);
+    canvas.addEventListener('dblclick', function(evt) {
+      canvas.style.transform = "scale(1.05)";
+    }, false);
+    canvas.addEventListener('click', function(evt) {
+      canvas.style.transform = "scale(0.9)";
+    }, false);
     var Chart1 = new Tee.Tee.Chart("canvas"+canvasIndex);
     Chart1.title.text = title;
     Chart1.footer.text = footer;
-
+    Chart1.panel.format.fill = "blue";
+    Chart1.panel.transparent = true;
     // Add Bar series to Chart:
-    var bars = new Tee.Tee.Bar(dataInputs);
+    var bars = new Tee.Tee.HorizBar(dataInputs);
+
     bars.data.labels = labels;
     //Chart1.addSeries(new Tee.Line()).addRandom(10);
     Chart1.addSeries(bars);
     Chart1.panel.format.fill = "blue";
+    var  tip=new Tee.Tee.ToolTip(Chart1);
+
+    tip.format.font.style="16px Tahoma";
+
+    Chart1.tools.add(tip);
+
+    var  b1=new Tee.Tee.Annotation(Chart1, "Change Axis", 455, 105);
+
+    b1.cursor="pointer";
+
+    b1.onclick=function(button,x,y)
+    {
+      Chart1.getSeries(0).vertAxis = (Chart1.getSeries(0).vertAxis)=="left"?"right":"left";
+
+
+    }
+
+    Chart1.tools.add( b1 );
 
     this.activeCharts.push(Chart1);
   }
+   resize(chart){
+  if (chart!=null){
+    var startWidth=600;
+    var startHeight=400;
+    var w;
+    var h;
+    var canvas = chart.canvas;
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+
+      w = window.innerWidth;
+      h = window.innerHeight;
+      if(w<=991){
+        canvas.style.width="" + w* 1.3 + "px";
+        canvas.style.height="" + w*1.3*startHeight/startWidth + "px";
+      }
+      else{
+        canvas.style.width = "" + startWidth + "px";
+        canvas.style.height = "" + startHeight + "px";
+        chart.bounds.width = startWidth;
+        chart.bounds.height = startHeight;
+      }
+      chart.draw();
+    }
+    else{
+      w = startWidth;
+      h = startHeight;
+
+      if ((window.innerWidth - canvas.offsetLeft - 20) < startWidth)
+        w = window.innerWidth - canvas.offsetLeft - 20;
+      else
+        w = startWidth;
+
+      if ((window.innerWidth * startHeight / startWidth) < startHeight)
+        h =window.innerWidth * startHeight / startWidth;
+      else
+        h = startHeight;
+
+      canvas.setAttribute('width', ""+w+"px");
+
+      canvas.setAttribute('height', ""+h+"px");
+
+      canvas.style.width=""+w+"px";
+      canvas.style.height=""+h+"px";
+
+      chart.bounds.width=w;
+      chart.bounds.height=h;
+
+      chart.draw();
+    }
+  }
+}
 }
