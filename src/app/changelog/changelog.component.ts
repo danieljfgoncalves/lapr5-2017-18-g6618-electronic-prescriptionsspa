@@ -48,7 +48,6 @@ export class ChangeLogComponent {
   var content = document.createElement( "content" );
 
 
-
   for ( var i =  0; i < this.graphNr  ; i ++ ) {
 
     var scene = new THREE.Scene();
@@ -195,6 +194,8 @@ export class ChangeLogComponent {
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
             this.animate();
+            var toRemove =  this.rendererContainer.nativeElement.getElementsByTagName("canvas");
+            toRemove[toRemove.length -1 ].remove();
           });
         });
       });
@@ -207,6 +208,8 @@ export class ChangeLogComponent {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.rendererContainer.nativeElement.appendChild(this.renderer.domElement);
         this.animate();
+        var toRemove =  this.rendererContainer.nativeElement.getElementsByTagName("canvas");
+        toRemove[toRemove.length -1 ].remove();
       });
     }
   }
