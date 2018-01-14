@@ -114,7 +114,7 @@ export class PresentationService {
       console.log(resJSON)
       return new Comment(
         resJSON.text,
-        new User(resJSON.physician, null, null, null, null)
+        new User(resJSON.physician, null, null, null, null, null)
       );
     });
   }

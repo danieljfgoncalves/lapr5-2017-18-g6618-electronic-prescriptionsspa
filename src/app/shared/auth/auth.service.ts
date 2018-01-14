@@ -24,6 +24,9 @@ import {
   User
 } from '../../model/user';
 import {
+  Registration
+} from '../../model/registration';
+import {
   Role
 } from '../../model/role';
 import { Observable } from 'rxjs/Rx';
@@ -35,11 +38,15 @@ class Token {
 class MedToken {
   access_token: string
 };
+class MfaAuth {
+  mfa: boolean
+}
 
 @Injectable()
 export class AuthService {
 
   private urlAuth: string = environment.receipts_frontend.url + '/api/authenticate';
+  private urlMfa: string = environment.receipts_frontend.url + '/api/authenticate/mfa';
   private urlRegister: string = environment.receipts_frontend.url + '/api/signup';
   private urlDelete: string = environment.receipts_frontend.url + '/api/deleteAccount';
 
@@ -47,11 +54,15 @@ export class AuthService {
   public auth: Subject<User> = new Subject<User>();
   private userInfo: User;
 
+  // Temporary values until values are stored int the local storage
+  private temp_token: string;
+  private med_token: string;
+
   constructor(private http: HttpClient) {
     this.token = JSON.parse(JSON.stringify(localStorage.getItem('token')));
   }
 
-  signupUser(username: string, password: string, email: string) {
+  signupUser(username: string, password: string, email: string, mfa:boolean) {
     //your code for signing up the new user
     var options = {
       headers: {
@@ -63,14 +74,14 @@ export class AuthService {
     var body = {
       "username": username,
       "password": password,
-      "email": email
+      "email": email,
+      "mfa":mfa
     };
-
-    return new Observable<boolean>(observer => {
-      this.http.post<boolean>(this.urlRegister, body, options)
+    return new Observable<Registration>(observer => {
+      this.http.post<Registration>(this.urlRegister, body, options)
         .subscribe(data => {
           console.log(data);
-          observer.next(true);
+          observer.next(data);
         },
         (err: HttpErrorResponse) => {
           if (err.error instanceof Error) {
@@ -79,7 +90,7 @@ export class AuthService {
             console.log("Server-side error occured.");
           }
           console.log(err);
-          observer.next(false);
+          observer.next(null);
         });
     });
   }
@@ -102,16 +113,19 @@ export class AuthService {
         .subscribe(data => {
           if (data.token) {
             const tokenDecoded = jwt_decode(data.token);
+
+            var mfa = null;
+            if (tokenDecoded["https://lapr5.isep.pt/mfa"]) {
+              var mfa = tokenDecoded["https://lapr5.isep.pt/mfa"].secret
+            }
             this.userInfo = {
               id: tokenDecoded.sub,
               name: name,
               email: tokenDecoded["https://lapr5.isep.pt/email"],
-              mobile: tokenDecoded["https://lapr5.isep.pt/roles"].mobile,
-              roles: tokenDecoded["https://lapr5.isep.pt/roles"]
+              mobile: tokenDecoded["https://lapr5.isep.pt/user_info"].mobile,
+              roles: tokenDecoded["https://lapr5.isep.pt/roles"],
+              mfa: mfa
             }
-            localStorage.token = data.token;
-            localStorage.removeItem('anonymous');
-
             const url = 'https://lapr5-3da.eu.auth0.com/oauth/token'
             this.http.post<MedToken>(url,
               {
@@ -120,16 +134,52 @@ export class AuthService {
                 client_secret: environment.receipts_frontend.client_secret,  //   'xVeQAFK7NeZZXSJ7ZQeA2H6ouILGkGIyxBNKVPo-8W5tzDC-0o_vIwF96veW9V7b',
                 audience: "https://medicines-backend-api/"
               }).subscribe(medToken => {
-
-                localStorage.medicinesToken = medToken.access_token;
+                this.temp_token = data.token;
+                this.med_token = medToken.access_token;
                 this.auth.next(this.userInfo);
                 observer.next(true);
               });
-
           } else {
             this.auth.next(this.userInfo);
             observer.next(false);
           }
+        },
+        (err: HttpErrorResponse) => {
+          if (err.error instanceof Error) {
+            console.log("Client-side error occured.");
+          } else {
+            console.log("Server-side error occured.");
+          }
+          console.log(err);
+          this.auth.next(this.userInfo);
+          observer.next(false);
+        });
+    });
+  }
+
+  storeInfo() {
+    localStorage.token = this.temp_token;
+    localStorage.removeItem('anonymous');
+    localStorage.medicinesToken = this.med_token;
+  }
+
+  mfaAuthentication(token: string): Observable<boolean> {
+
+    return new Observable<boolean>(observer => {
+      
+      if (!this.userInfo) observer.next(false);
+
+      var options = {
+        headers: {
+          'content-type': 'application/json'
+        }
+      };
+      this.http.post<MfaAuth>(this.urlMfa, {
+        secret: this.userInfo.mfa,
+        token: token
+      }, options)
+        .subscribe(mfa => { 
+          observer.next(mfa.mfa);
         },
         (err: HttpErrorResponse) => {
           if (err.error instanceof Error) {
@@ -178,6 +228,7 @@ export class AuthService {
     this.token = null;
     this.userInfo = null;
     localStorage.removeItem('token');
+    localStorage.removeItem('medicinesToken');
     localStorage.removeItem('anonymous');
     this.auth.next(this.userInfo);
   }
@@ -193,13 +244,18 @@ export class AuthService {
 
   getUserInfo() {
     if (!this.userInfo) {
+      var mfa = null;
       const tokenDecoded = jwt_decode(this.getToken());
+      if (tokenDecoded["https://lapr5.isep.pt/mfa"]) {
+        var mfa = tokenDecoded["https://lapr5.isep.pt/mfa"].secret
+      }
       this.userInfo = {
         id: tokenDecoded.sub,
         name: tokenDecoded['https://lapr5.isep.pt/username'],
         email: tokenDecoded['https://lapr5.isep.pt/email'],
         mobile: tokenDecoded.mobile,
-        roles: tokenDecoded['https://lapr5.isep.pt/roles']
+        roles: tokenDecoded['https://lapr5.isep.pt/roles'],
+        mfa: mfa
       }
       console.log(tokenDecoded);
     }
@@ -209,6 +265,7 @@ export class AuthService {
 
   isAuthenticated() {
     // here you can check if user is authenticated or not through his token
+    if(this.getToken == null) return false;
     return tokenNotExpired();
   }
 
