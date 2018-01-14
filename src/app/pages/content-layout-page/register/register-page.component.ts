@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, Input } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from "@angular/router";
 import { AuthService } from 'app/shared/auth/auth.service';
@@ -19,6 +19,10 @@ export class RegisterPageComponent {
     error = '';
     checked = false;
     loading = false;
+
+    mfaEnabled = false;
+    @Input() mfaQR:String;
+    showMfaQR = false;
 
     @ViewChild('f') registerForm: NgForm;
 
@@ -52,16 +56,24 @@ export class RegisterPageComponent {
         }
     }
 
+    enableMfa() {
+        this.mfaEnabled = !this.mfaEnabled;
+    } 
+
     //  On submit click, reset field value
     onSubmit() {
         this.loading = true;
         if (this.checked) {
-            this.authService.signupUser(this.model.username, this.model.password, this.model.email)
+            this.authService.signupUser(this.model.username, this.model.password, this.model.email, this.mfaEnabled)
                 .subscribe(result => {
-                    if (result === true) {
-                        this.loading = false;
-                        swal("User successfully registered!");
-                        this.router.navigate(['login'], { relativeTo: this.route.parent });
+                    if (result) {
+                        if (result.qr) {
+                            this.loading = false;
+                            this.mfaQR = result.qr;
+                            this.showMfaQR = true;
+                        } else {
+                            this.redirect();
+                        }
                     } else {
                         this.error = 'Invalid';
                         swal("User register failed!");
@@ -75,5 +87,11 @@ export class RegisterPageComponent {
             this.loading = false;
         }
 
+    }
+
+    redirect() {
+        this.loading = false;
+        swal("User successfully registered!");
+        this.router.navigate(['login'], { relativeTo: this.route.parent });
     }
 }

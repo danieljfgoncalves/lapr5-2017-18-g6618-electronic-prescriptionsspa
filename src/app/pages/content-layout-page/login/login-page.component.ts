@@ -17,6 +17,9 @@ export class LoginPageComponent implements OnInit {
     error = '';
     loading = false;
 
+    mfaEnabled: boolean = false;
+    mfaToken: string = '';
+    @ViewChild('mfa') mfaForm: NgForm;
     @ViewChild('f') loginForm: NgForm;
 
     constructor(
@@ -39,21 +42,49 @@ export class LoginPageComponent implements OnInit {
         this.authService.signinUser(this.model.name, this.model.passwd)
             .subscribe(result => {
                 if (result === true) {
-                    this.router.navigate(['/main/dashboard'], { replaceUrl: true });
-                    this.loading = false;
+                    var mfa = this.authService.getUserInfo().mfa;
+                    if(mfa == null) {
+                        this.redirect();
+                    } else {
+                        // Show MFA form
+                        this.mfaEnabled = true;
+                    }
                 } else {
                     this.loading = false;
                     this.error = 'Login Failed!';
                     swal(this.error);
                 }
+                this.loading = false;
+                // Reset Form
+                this.loginForm.reset();
             });
-
-        // Reset Form
-        this.loginForm.reset();
     }
+    redirect() {
+        this.authService.storeInfo();
+        this.router.navigate(['/main/dashboard'], { replaceUrl: true });
+    }
+
+    onMfa() {
+        this.loading = true;
+        this.authService.mfaAuthentication(this.mfaToken)
+        .subscribe(success => {
+            if (success) {
+                this.redirect();
+            } else {
+                this.error = 'Invalid Token!';
+                swal(this.error);
+            }
+            this.loading = false;
+            this.mfaForm.reset();
+        });
+    }
+    onBackLogin() {
+        this.mfaEnabled = false;
+        this.mfaForm.reset();
+    }
+
     // On registration link click
     onRegister() {
-        // TODO: Register
         this.router.navigate(['register'], { relativeTo: this.route.parent });
     }
 

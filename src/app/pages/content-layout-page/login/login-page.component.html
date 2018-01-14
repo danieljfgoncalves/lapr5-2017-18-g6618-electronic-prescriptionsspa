@@ -10,7 +10,7 @@
                     <div class="card-body">
                         <div class="card-block">
                             <h2>Login</h2>
-                            <form name="form" (ngSubmit)="f.form.valid && onLogin()" #f="ngForm" novalidate>
+                            <form *ngIf="!mfaEnabled" name="form" (ngSubmit)="f.form.valid && onLogin()" #f="ngForm" novalidate>
                                 <div class="form-group">
                                     <div class="col-md-12">
                                         <input type="text" class="form-control" name="name" placeholder="Username" [(ngModel)]="model.name" #name="ngModel" required
@@ -28,11 +28,25 @@
                                     <div class="col-md-12">
                                         <button type="button" class="btn btn-pink btn-block btn-raised" (click)="onLogin()">Login</button>
                                         <button type="button" class="btn btn-secondary btn-block btn-raised" (click)="onAnonymous()">Anonymous</button>
-                                        <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
-                                        />
                                     </div>
                                 </div>
                             </form>
+                            <form *ngIf="mfaEnabled" name="form" (ngSubmit)="mfa.form.valid && onMfa()" #mfa="ngForm" novalidate>
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" name="token" placeholder="Token" [(ngModel)]="mfaToken" #name="ngModel" required
+                                        />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-pink btn-block btn-raised" (click)="onMfa()">Continue</button>
+                                        <button type="button" class="btn btn-secondary btn-block btn-raised" (click)="onBackLogin()">Back</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <img *ngIf="loading" src="assets/img/preloader.gif"
+                            />
                         </div>
                     </div>
                     <div class="card-footer">

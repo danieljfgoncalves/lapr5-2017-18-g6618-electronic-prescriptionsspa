@@ -98,7 +98,8 @@ export class MedicalReceiptService {
       name: json.patient.username,
       email: json.patient.email,
       mobile: json.patient.mobile,
-      roles: json.patient.roles
+      roles: json.patient.roles,
+      mfa: null
     };
 
     let physician: User = {
@@ -106,7 +107,8 @@ export class MedicalReceiptService {
       name: json.physician.username,
       email: json.physician.email,
       mobile: json.physician.mobile,
-      roles: json.physician.roles
+      roles: json.physician.roles,
+      mfa :null
     };
 
     return new MedicalReceipt(

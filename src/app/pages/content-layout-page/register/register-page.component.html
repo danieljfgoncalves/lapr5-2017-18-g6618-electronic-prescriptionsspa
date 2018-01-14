@@ -1,71 +1,88 @@
 <!--Registration Page Starts-->
 <section id="regestration">
-    <div class="container">
-        <div class="row full-height-vh">
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row d-flex">
-                            <div class="col-12 col-sm-12 col-md-6 gradient-deep-orange-orange">
-                                <div class="card-block">
-                                    <div class="card-img overlap">
-                                        <img alt="Card image cap" src="assets/img/elements/13.png" width="350" class="mx-auto d-block">
-                                    </div>
-                                    <h2 class="card-title font-large-1 text-center white mt-3">Registration</h2>
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-6 d-flex align-items-center">
-                                <div class="card-block mx-auto">
-                                    <form (ngSubmit)="onSubmit()" #f="ngForm">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-addon">
-                                                <i class="icon-user"></i>
-                                            </span>
-                                            <input type="text" class="form-control" name="fname" id="fname" placeholder="username" [(ngModel)]="model.username" #name="ngModel"
-                                                required>
-                                        </div>
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-addon">
-                                                <i class="ft-mail"></i>
-                                            </span>
-                                            <input type="email" class="form-control" name="inputEmail" id="inputEmail" placeholder="email" [(ngModel)]="model.email"
-                                                #name="ngModel" required email>
-                                        </div>
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-addon">
-                                                <i class="ft-lock"></i>
-                                            </span>
-                                            <input type="password" class="form-control" name="inputPass" id="inputPass" placeholder="password" [(ngModel)]="model.password"
-                                                #name="ngModel" required>
-                                        </div>
-
-                                        <div class="form-group col-sm-offset-1">
-                                            <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
-                                                <input type="checkbox" class="custom-control-input" [(ngModel)]="checked" (click)="check()" id="check" unchecked>
-                                                <span class="custom-control-indicator"></span>
-                                                <span class="pl-2">I agree EULA and Privacy Policy</span>
-                                            </label>
-                                            <div _ngcontent-c10="" class="card-block text-center">
-                                                <button _ngcontent-c44="" class="badge badge-dark" (click)="eulaAlert()" type="button">Eula</button>
-                                                <button _ngcontent-c44="" class="badge badge-dark" (click)="privacyPolicyAlert()" type="button">Privacy Policy</button>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group text-center">
-                                            <button type="button" class="btn btn-warning btn-raised" (click)="onSubmit()" [disabled]="!checked">Get Started</button>
-                                        </div>
-                                        <div class="form-group text-center">
-                                            <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
-                                            />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+  <div class="container">
+    <div class="row full-height-vh">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+        <div class="card">
+          <div class="card-body">
+            <div class="row d-flex">
+              <div class="col-12 col-sm-12 col-md-6 gradient-deep-orange-orange">
+                <div class="card-block">
+                  <div class="card-img overlap">
+                    <img alt="Card image cap" src="assets/img/elements/13.png" width="350" class="mx-auto d-block">
+                  </div>
+                  <h2 class="card-title font-large-1 text-center white mt-3">Registration</h2>
                 </div>
+              </div>
+              <div class="col-12 col-sm-12 col-md-6 d-flex align-items-center">
+                <div class="card-block mx-auto">
+                  <form *ngIf="!showMfaQR" (ngSubmit)="onSubmit()" #f="ngForm">
+                    <div class="input-group mb-3">
+                      <span class="input-group-addon">
+                        <i class="icon-user"></i>
+                      </span>
+                      <input type="text" class="form-control" name="fname" id="fname" placeholder="username" [(ngModel)]="model.username" #name="ngModel"
+                        required>
+                    </div>
+                    <div class="input-group mb-3">
+                      <span class="input-group-addon">
+                        <i class="ft-mail"></i>
+                      </span>
+                      <input type="email" class="form-control" name="inputEmail" id="inputEmail" placeholder="email" [(ngModel)]="model.email"
+                        #name="ngModel" required email>
+                    </div>
+                    <div class="input-group mb-3">
+                      <span class="input-group-addon">
+                        <i class="ft-lock"></i>
+                      </span>
+                      <input type="password" class="form-control" name="inputPass" id="inputPass" placeholder="password" [(ngModel)]="model.password"
+                        #name="ngModel" required>
+                    </div>
+
+                    <div class="form-group col-sm-offset-1">
+                      <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
+                        <input type="checkbox" class="custom-control-input" (click)="enableMfa()" unchecked>
+                        <span class="custom-control-indicator"></span>
+                        <span class="pl-2">Enable Multifactor Auth</span>
+                      </label>
+                      <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
+                        <input type="checkbox" class="custom-control-input" (click)="check()" unchecked>
+                        <span class="custom-control-indicator"></span>
+                        <span class="pl-2">I agree EULA and Privacy Policy</span>
+                      </label>
+                      <div _ngcontent-c10="" class="card-block text-center">
+                        <button _ngcontent-c44="" class="badge badge-dark" (click)="eulaAlert()" type="button">Eula</button>
+                        <button _ngcontent-c44="" class="badge badge-dark" (click)="privacyPolicyAlert()" type="button">Privacy Policy</button>
+                      </div>
+                    </div>
+
+                    <div class="form-group text-center">
+                      <button type="button" class="btn btn-warning btn-raised" (click)="onSubmit()" [disabled]="!(checked && f.valid)">Get Started</button>
+                    </div>
+                  </form>
+                  <div *ngIf="showMfaQR">
+                    <div class="mb-3">
+                      <img src="{{mfaQR}}" />
+                    </div>
+                    <div class="mb-3">
+                      <p>Please scan QR code with your Authentication App (Google Authenticator, Authy, ...)</p>
+                    </div>
+                    <div class="form-group text-center">
+                      <button type="button" class="btn btn-success btn-raised" (click)="redirect()">Continue</button>
+                    </div>
+                  </div>
+                  <div class="form-group text-center">
+                    <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </section>
 <!--Registration Page Ends-->
+
